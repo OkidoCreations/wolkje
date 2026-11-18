@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wolkje</title>
+<!-- ============================================================
+     VIP-CODEWOORD VAN DEZE MAAND: pas alleen het woord hieronder aan.
+     Twee woorden laten meelopen kan zo: ['pepernoot', 'sneeuwvlok']
+     ============================================================ -->
+<script>window.VIPCODES = ['pepernoot'];</script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Wolkje">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#fbfaff">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Wolkje: telefoon eerst, één kolom, tabbladen onderin. Okido design system. */
+:root{
+  --navy:#15006b; --goud:#f4b440; --goud-d:#c98a1e; --mauve:#bca8c3;
+  --mint:#b1dfcd; --mint-l:#d7f7eb; --roze:#f2cdd7;
+  --tekst:#57536b; --zacht:#8a86a0; --wit:#ffffff; --bg:#fbfaff;
+  --rand:#ece8f4;
+  --f:'Quicksand', ui-rounded, system-ui, sans-serif;
+  --r:22px;
+  --schaduw:0 6px 22px rgba(21,0,107,.07);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tekst);font-family:var(--f);font-size:16px;line-height:1.5}
+body{padding-bottom:96px;padding-top:env(safe-area-inset-top);-webkit-tap-highlight-color:transparent}
+.slot{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px 20px;text-align:center;max-width:460px;margin:0 auto}
+h1,h2,h3{color:var(--navy);margin:0;text-wrap:balance;font-weight:700}
+h2{font-size:20px}
+h3{font-size:16px}
+button,input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--goud);outline-offset:2px;border-radius:10px}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 0;display:flex;flex-direction:column;gap:16px}
+.kaart{background:var(--wit);border-radius:var(--r);box-shadow:var(--schaduw);padding:18px;display:flex;flex-direction:column;gap:12px}
+.rij{display:flex;align-items:center;gap:10px}
+.tussen{justify-content:space-between}
+.klein{font-size:14px;color:var(--zacht)}
+.knop{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;background:var(--goud);color:#fff;font-weight:700;border-radius:14px;padding:12px 20px;box-shadow:0 4px 0 var(--goud-d);text-shadow:0 1px 2px rgba(21,0,107,.3);transition:transform .12s,box-shadow .12s}
+.knop:active{transform:translateY(3px);box-shadow:0 1px 0 var(--goud-d)}
+.knop:disabled{opacity:.45;cursor:default}
+.knop.lijn{background:#fff;color:var(--navy);border:2px solid var(--navy);box-shadow:none;text-shadow:none;padding:10px 18px}
+.knop.mini{padding:7px 14px;font-size:14px;box-shadow:0 3px 0 var(--goud-d)}
+.knop.mini.lijn{padding:6px 12px;box-shadow:none}
+.schuif{width:34px;height:28px;border-radius:9px;border:2px solid var(--rand);background:#fff;color:var(--navy);font-size:12px;line-height:1;padding:0}
+.schuif:disabled{opacity:.3;cursor:default}
+.tekstknop{background:none;border:0;color:var(--navy);font-weight:600;text-decoration:underline;text-underline-offset:3px;padding:4px}
+input[type=text],input[type=time],input[type=number],select,textarea{width:100%;border:2px solid var(--rand);border-radius:14px;padding:10px 12px;background:#fff}
+input:focus,select:focus,textarea:focus{border-color:var(--mauve);outline:none}
+label.veld{display:flex;flex-direction:column;gap:6px;font-weight:600;color:var(--navy);font-size:15px}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;background:var(--mint-l);color:var(--navy)}
+
+/* kop + wolkje */
+.kop{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:4px}
+.datum{font-size:14px;font-weight:600;color:var(--zacht)}
+.wolk-plek{width:min(78vw,300px);position:relative}
+#wolk{width:100%;height:auto;display:block;overflow:visible}
+.zweef{animation:zweef 5s ease-in-out infinite}
+@keyframes zweef{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.spring{animation:spring .7s cubic-bezier(.3,1.6,.5,1)}
+@keyframes spring{0%{transform:translateY(0) scale(1)}35%{transform:translateY(-70px) scale(1.04,.96)}70%{transform:translateY(0) scale(1.05,.95)}100%{transform:translateY(0) scale(1)}}
+.oog{transform-box:fill-box;transform-origin:center;animation:knipper 5.5s infinite}
+@keyframes knipper{0%,93%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+#vulling{transition:y .9s ease, height .9s ease}
+.zzz{font-family:var(--f);font-weight:700;fill:var(--mauve);animation:zzz 3s ease-in-out infinite}
+@keyframes zzz{0%{opacity:0;transform:translateY(20px)}40%{opacity:1}100%{opacity:0;transform:translateY(-60px)}}
+.ballon{position:relative;background:#fff;border-radius:18px;padding:12px 16px;box-shadow:var(--schaduw);max-width:420px;text-align:center;color:var(--navy);font-weight:600}
+.ballon::before{content:"";position:absolute;top:-9px;left:50%;margin-left:-9px;border:9px solid transparent;border-top:0;border-bottom-color:#fff}
+.voortgang{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;align-items:center;min-width:80px}
+.stat b{font-size:22px;color:var(--navy);font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--zacht);font-weight:600}
+
+/* energie */
+.energie{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.energie button{border:2px solid var(--rand);background:#fff;border-radius:16px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:700;color:var(--navy);font-size:14px}
+.energie .bol{width:22px;height:22px;border-radius:50%}
+.energie button[aria-pressed=true]{border-color:var(--navy);background:var(--mint-l)}
+
+/* ankers */
+.dagdeel{display:flex;flex-direction:column;gap:8px}
+.dagdeel-kop{display:flex;align-items:center;gap:10px}
+.dagdeel-kop .streep{width:10px;height:26px;border-radius:6px}
+.anker{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:2px solid var(--rand);background:#fff;border-radius:16px;padding:10px 12px;transition:background .2s,border-color .2s}
+.anker .vink{flex:none;width:30px;height:30px;border-radius:50%;border:2.5px solid var(--mauve);display:grid;place-items:center;background:#fff;transition:all .2s}
+.anker .vink svg{opacity:0;transform:scale(.4);transition:all .25s}
+.anker[aria-pressed=true]{background:var(--mint-l);border-color:var(--mint)}
+.anker[aria-pressed=true] .vink{background:var(--navy);border-color:var(--navy)}
+.anker[aria-pressed=true] .vink svg{opacity:1;transform:scale(1)}
+.anker .ico{font-size:22px;flex:none;width:28px;text-align:center}
+.anker .naam{flex:1;font-weight:600;color:var(--navy)}
+.anker .tijd{font-size:13px;color:var(--zacht);font-weight:600}
+.anker .pt{font-size:13px;font-weight:700;color:var(--goud-d);white-space:nowrap}
+.anker.bonus{opacity:.6}
+.basis-tag{font-size:11px;font-weight:700;background:var(--roze);color:var(--navy);border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:2px}
+
+/* tabbalk */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:#fff;box-shadow:0 -4px 20px rgba(21,0,107,.08);display:flex;justify-content:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:20}
+nav.tabs .in{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;max-width:560px}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border-radius:14px;text-decoration:none;color:var(--zacht);font-weight:700;font-size:12px}
+nav.tabs a svg{width:26px;height:26px}
+nav.tabs a[aria-current=page]{color:var(--navy);background:var(--mint-l)}
+
+/* kleurplaat */
+.mandala{width:100%;max-width:380px;margin:0 auto;display:block}
+.galerij{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.galerij figure{margin:0;text-align:center;font-size:12px;font-weight:600;color:var(--zacht)}
+.galerij svg{width:100%;height:auto}
+
+/* spaarpot */
+.saldo{display:flex;align-items:center;gap:14px}
+.saldo b{font-size:40px;line-height:1;color:var(--navy);font-variant-numeric:tabular-nums}
+.lijst{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;align-items:center;gap:10px;border:2px solid var(--rand);border-radius:16px;padding:10px 12px;background:#fff}
+.item .naam{flex:1;font-weight:600;color:var(--navy)}
+.maat{font-size:12px;font-weight:700;border-radius:999px;padding:2px 10px;color:var(--navy)}
+.kast{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.kast .acc{border:2px solid var(--rand);border-radius:18px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px;background:#fff;text-align:center}
+.kast .acc svg{width:100%;height:auto}
+.kast .acc.aan{border-color:var(--goud);background:#fff8ea}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.badge{border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:4px;background:var(--bg);border:2px dashed var(--rand)}
+.badge.ja{background:var(--mint-l);border:2px solid var(--mint)}
+.badge b{color:var(--navy)}
+.badge .medaille{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:22px;background:#fff}
+.badge:not(.ja) .medaille{filter:grayscale(1);opacity:.5}
+.balk{height:10px;border-radius:999px;background:var(--rand);overflow:hidden}
+.balk i{display:block;height:100%;background:var(--goud);border-radius:999px}
+
+/* dialogen */
+.scherm{position:fixed;inset:0;background:rgba(21,0,107,.35);display:none;align-items:flex-end;justify-content:center;z-index:40;padding:0}
+.scherm.open{display:flex}
+.vel{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:26px 26px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;animation:op .25s ease}
+@keyframes op{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@media (min-width:700px){.scherm{align-items:center}.vel{border-radius:26px}}
+.keuzes{display:flex;flex-direction:column;gap:8px}
+.keuze{display:flex;gap:12px;align-items:flex-start;text-align:left;border:2px solid var(--rand);background:#fff;border-radius:16px;padding:12px}
+.keuze[aria-pressed=true]{border-color:var(--navy);background:var(--mint-l)}
+.keuze b{color:var(--navy)}
+.dagen{display:flex;gap:6px;flex-wrap:wrap}
+.dagen button{width:40px;height:40px;border-radius:50%;border:2px solid var(--rand);background:#fff;font-weight:700;color:var(--navy)}
+.dagen button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:600;color:var(--navy)}
+.toggle input{width:22px;height:22px;accent-color:var(--navy)}
+.stippen{display:flex;gap:6px;justify-content:center}
+.stippen i{width:8px;height:8px;border-radius:50%;background:var(--rand)}
+.stippen i.aan{background:var(--navy)}
+
+.info-knop{position:fixed;top:calc(12px + env(safe-area-inset-top));right:12px;z-index:15;width:42px;height:42px;border-radius:50%;border:0;background:#fff;color:var(--navy);font-weight:700;font-size:20px;box-shadow:var(--schaduw);display:grid;place-items:center}
+.uitleg details{border:2px solid var(--rand);border-radius:16px;padding:0 14px;background:#fff}
+.uitleg details[open]{border-color:var(--mint);background:#fbfffd}
+.uitleg summary{cursor:pointer;list-style:none;padding:12px 0;font-weight:700;color:var(--navy);display:flex;gap:10px;align-items:center}
+.uitleg summary::-webkit-details-marker{display:none}
+.uitleg summary::after{content:"+";margin-left:auto;font-size:20px;color:var(--mauve)}
+.uitleg details[open] summary::after{content:"–"}
+.uitleg details p,.uitleg details ul{margin:0 0 12px;font-size:15px}
+.uitleg details ul{padding-left:20px}
+.uitleg details li{margin-bottom:4px}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;font-weight:600;padding:12px 18px;border-radius:16px;opacity:0;transition:all .3s;z-index:60;max-width:90vw;text-align:center;pointer-events:none}
+.toast.zie{opacity:1;transform:translateX(-50%) translateY(0)}
+.cadeau{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
+.cadeau .doos{font-size:64px;animation:spring 1s ease}
+.melding{background:#fff8ea;border-radius:16px;padding:10px 14px;font-size:14px;color:var(--navy);font-weight:500}
+.leeg{color:var(--zacht);font-size:14px;text-align:center;padding:8px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<main id="app">
+  <section id="v-vandaag" class="wrap" aria-label="Vandaag">
+    <div class="kop">
+      <div class="datum" id="datum"></div>
+      <div class="wolk-plek"><svg id="wolk" viewBox="60 180 1940 1560" role="img" aria-label="Jouw wolkje"></svg></div>
+      <div class="ballon" id="ballon">Hoi! Even opstarten...</div>
+    </div>
+    <div class="voortgang">
+      <div class="stat"><b id="s-gedaan">0/0</b><span>vandaag</span></div>
+      <div class="stat"><b id="s-reeks">0</b><span>dagen op rij</span></div>
+      <div class="stat"><b id="s-punten">0</b><span>punten</span></div>
+    </div>
+    <div class="kaart" id="energie-kaart">
+      <div><h2>Hoe is je energie?</h2><span class="klein" id="energie-uitleg"></span></div>
+      <div class="energie" role="group" aria-label="Energie vandaag">
+        <button data-e="groen" aria-pressed="false"><span class="bol" style="background:#b1dfcd"></span>Groen</button>
+        <button data-e="oranje" aria-pressed="false"><span class="bol" style="background:#f4b440"></span>Oranje</button>
+        <button data-e="rood" aria-pressed="false"><span class="bol" style="background:#f2cdd7;border:2px solid #e3a6b6"></span>Rood</button>
+      </div>
+    </div>
+    <div class="kaart" id="reisje-mini" hidden></div>
+    <div id="ankers" class="wrap" style="padding:0"></div>
+    <div class="kaart">
+      <div class="rij tussen"><h2>Ideeën-parkeerplaats</h2><a class="tekstknop" href="#meer">alles zien</a></div>
+      <form id="idee-snel" class="rij">
+        <input type="text" id="idee-snel-in" placeholder="Nieuw idee? Hier is het veilig" aria-label="Nieuw idee">
+        <button class="knop mini" type="submit">Parkeer</button>
+      </form>
+      <p class="klein" style="margin:0">Bewaard voor later. Vandaag werk je er niet aan.</p>
+    </div>
+  </section>
+
+  <section id="v-week" class="wrap" aria-label="Week" hidden>
+    <div class="kaart">
+      <div class="rij tussen"><h2>Jouw wolkjeskrans</h2><span class="chip" id="week-nr"></span></div>
+      <p class="klein" style="margin:0">Elke dag een wolkje dat volloopt met wat je voor jezelf deed. Helemaal vol? Dan lacht hij en krijgt hij sterretjes. In het midden groeit je hele week mee.</p>
+      <div id="mandala"></div>
+    </div>
+    <div class="kaart" id="hoofdstuk-kaart"></div>
+    <div class="kaart">
+      <h2>Weekterugblik</h2>
+      <div id="terugblik-stats" class="voortgang"></div>
+      <label class="veld" for="tb-goed">Wat ging goed deze week?
+        <textarea id="tb-goed" rows="2"></textarea></label>
+      <label class="veld" for="tb-planner">Wat gun ik mezelf volgende week?
+        <textarea id="tb-planner" rows="2"></textarea></label>
+      <p class="klein" id="tb-wek" style="margin:0"></p>
+    </div>
+    <div class="kaart">
+      <h2>Galerij</h2>
+      <div class="galerij" id="galerij"></div>
+    </div>
+  </section>
+
+  <section id="v-spaarpot" class="wrap" aria-label="Spaarpot" hidden>
+    <div class="kaart">
+      <div class="saldo"><b id="saldo">0</b><div><h2>punten in je spaarpot</h2><span class="klein" id="saldo-sub"></span></div></div>
+    </div>
+    <div class="kaart">
+      <div class="rij tussen"><h2>Jouw beloningen</h2><button class="knop mini lijn" id="beloning-nieuw">+ Beloning</button></div>
+      <div class="lijst" id="beloningen"></div>
+    </div>
+    <div class="kaart">
+      <h2 id="kast-titel">Kastje van je wolkje</h2>
+      <p class="klein" style="margin:0">Spaar voor iets leuks om aan te trekken. Wat je koopt blijft voor altijd van jou: uitdoen en weer aantrekken is gratis. Je punten krijg je bij uitdoen niet terug.</p>
+      <div class="kast" id="kast"></div>
+    </div>
+    <div class="kaart">
+      <h2>Badges</h2>
+      <div class="badges" id="badges"></div>
+    </div>
+  </section>
+
+  <section id="v-meer" class="wrap" aria-label="Meer" hidden>
+    <div class="kaart" id="reisje-kaart"></div>
+    <div class="kaart">
+      <h2>Ideeën-parkeerplaats</h2>
+      <form id="idee-form" class="rij">
+        <input type="text" id="idee-in" placeholder="Schrijf het op en laat het even los" aria-label="Nieuw idee">
+        <button class="knop mini" type="submit">Parkeer</button>
+      </form>
+      <div class="lijst" id="ideeen"></div>
+    </div>
+    <div class="kaart">
+      <h2>Herinneringen</h2>
+      <p style="margin:0">Tik op een tijd of naam om hem te veranderen. Wolkje kan je telefoon niet zelf laten piepen. Zet deze tijden als wekker in je telefoon, met als naam bijvoorbeeld <b>"Wolkje: tijd voor je avond"</b>. Gaat hij af? Open Wolkje en vink af.</p>
+      <div class="lijst" id="herinneringen"></div>
+      <form id="herinnering-form" class="rij">
+        <input type="time" id="her-tijd" aria-label="Tijd" style="max-width:130px" value="12:30">
+        <input type="text" id="her-naam" placeholder="Waarvoor?" aria-label="Waarvoor">
+        <button class="knop mini" type="submit">Toevoegen</button>
+      </form>
+    </div>
+    <div class="kaart">
+      <h2>Back-up</h2>
+      <p style="margin:0">Nieuwe telefoon, of wil je je voortgang ergens anders verder zetten? Maak een back-up en zet hem daar terug. Al je vinkjes, punten, beloningen en kransen gaan mee.</p>
+      <div class="rij" style="flex-wrap:wrap"><button class="knop mini" data-actie="backup-maak">Back-up maken</button><button class="knop mini lijn" data-actie="backup-terug">Back-up terugzetten</button></div>
+    </div>
+    <div class="kaart">
+      <h2>Instellingen</h2>
+      <div class="lijst">
+        <button class="item" data-open="naam"><span class="naam">Naam van je wolkje</span><span class="klein" id="inst-naam"></span></button>
+        <button class="item" data-open="dagdelen"><span class="naam">Dagdelen</span><span class="klein">aan, uit, tijden</span></button>
+        <button class="item" data-open="ankers"><span class="naam">Ankers</span><span class="klein" id="inst-ankers"></span></button>
+        <button class="item" data-open="pakketjes"><span class="naam">Startpakketje toevoegen</span><span class="klein">kant-en-klaar</span></button>
+      </div>
+      <p class="klein" id="opslag-info" style="margin:0"></p>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs" aria-label="Hoofdmenu"><div class="in">
+  <a href="#vandaag" data-tab="vandaag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 18a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 17.6 9a4.5 4.5 0 0 1 .4 9z"/></svg>Vandaag</a>
+  <a href="#week" data-tab="week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg>Week</a>
+  <a href="#spaarpot" data-tab="spaarpot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg>Spaarpot</a>
+  <a href="#meer" data-tab="meer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>Meer</a>
+</div></nav>
+
+<button class="info-knop" id="info-knop" aria-label="Hoe werkt Wolkje?">i</button>
+<div class="scherm" id="scherm" role="dialog" aria-modal="true"><div class="vel" id="vel"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============ basis ============ */
+const CLUB = true;
+const OUTER = "M1922 978Q1916 949 1907 924Q1898 899 1886 875Q1873 851 1858 830Q1843 810 1832 798Q1820 786 1798 768Q1777 751 1752 738Q1726 724 1701 716Q1676 709 1651 706Q1626 704 1620 698Q1614 693 1612 682Q1609 670 1599 646Q1589 623 1570 595Q1550 567 1533 550Q1516 533 1498 520Q1481 506 1444 486Q1406 467 1380 459Q1354 451 1328 447Q1303 443 1270 443Q1238 443 1214 447Q1191 451 1172 457Q1153 463 1134 472Q1114 482 1090 500Q1065 518 1050 534Q1035 551 1029 554Q1023 556 1017 556Q1011 555 992 542Q973 529 953 519Q933 509 893 496Q853 483 812 478Q771 473 730 476Q689 479 652 488Q614 498 576 516Q537 534 508 555Q479 576 452 606Q425 635 410 662Q394 688 384 715Q375 742 371 769Q367 796 368 826Q369 856 364 862Q358 867 328 882Q297 896 266 920Q234 945 210 972Q187 999 168 1033Q148 1067 138 1094Q129 1122 125 1143Q121 1164 120 1194Q119 1224 122 1248Q125 1273 138 1312Q151 1352 161 1370Q171 1389 188 1412Q206 1436 224 1454Q242 1472 258 1485Q275 1498 294 1510Q312 1521 338 1533Q364 1545 409 1556Q454 1568 498 1570Q541 1572 588 1564Q634 1557 658 1549Q682 1541 701 1532Q720 1523 724 1523Q729 1523 738 1528Q748 1533 760 1552Q772 1570 792 1590Q812 1609 834 1624Q857 1639 879 1649Q901 1659 926 1666Q952 1674 981 1678Q1010 1683 1040 1684Q1069 1685 1108 1681Q1146 1677 1177 1670Q1208 1662 1230 1654Q1252 1646 1276 1634Q1300 1623 1320 1611Q1339 1599 1359 1584Q1379 1568 1396 1550Q1414 1533 1428 1516Q1441 1498 1452 1478Q1462 1459 1466 1456Q1470 1453 1481 1451Q1492 1449 1510 1454Q1528 1459 1550 1462Q1572 1465 1596 1464Q1620 1464 1635 1462Q1650 1459 1673 1452Q1696 1445 1714 1436Q1732 1428 1762 1408Q1791 1387 1813 1364Q1835 1342 1852 1318Q1870 1293 1884 1267Q1897 1241 1907 1212Q1917 1183 1923 1152Q1929 1120 1930 1088Q1932 1057 1930 1032Q1928 1007 1922 978Z";
+const INNER = "M1739 986Q1745 1012 1744 1034Q1742 1055 1740 1064Q1737 1073 1728 1091Q1718 1109 1706 1126Q1694 1143 1676 1159Q1658 1175 1648 1182Q1637 1190 1616 1198Q1596 1206 1566 1206Q1537 1206 1516 1200Q1496 1195 1477 1183Q1458 1171 1430 1144Q1402 1116 1386 1107Q1369 1098 1359 1096Q1349 1094 1327 1096Q1305 1099 1294 1104Q1284 1110 1276 1120Q1267 1130 1260 1148Q1252 1165 1251 1184Q1250 1204 1252 1220Q1255 1236 1254 1252Q1254 1267 1250 1290Q1246 1314 1240 1331Q1234 1348 1227 1358Q1220 1369 1209 1379Q1198 1389 1181 1397Q1164 1405 1146 1409Q1128 1413 1104 1416Q1079 1418 1049 1418Q1019 1417 996 1411Q974 1405 963 1398Q952 1390 948 1384Q943 1378 941 1368Q939 1357 939 1330Q939 1302 937 1289Q935 1276 926 1255Q918 1234 902 1214Q885 1194 875 1187Q865 1180 855 1176Q845 1172 832 1172Q820 1172 809 1178Q798 1183 785 1193Q772 1203 750 1226Q727 1250 698 1271Q669 1292 638 1306Q608 1319 578 1324Q547 1328 512 1324Q478 1319 455 1312Q432 1304 416 1296Q400 1288 390 1280Q379 1271 365 1254Q351 1236 342 1209Q334 1182 335 1164Q336 1147 344 1129Q351 1111 362 1098Q374 1086 391 1076Q408 1067 428 1062Q449 1058 462 1058Q475 1057 528 1060Q580 1062 596 1057Q611 1052 620 1044Q630 1035 638 1019Q646 1003 648 987Q649 971 642 955Q635 939 603 906Q571 873 566 850Q561 828 563 814Q565 799 574 780Q584 761 600 746Q617 732 629 724Q641 716 662 706Q684 697 702 693Q721 689 744 687Q766 685 792 687Q818 689 832 693Q847 697 859 704Q871 710 883 722Q895 733 907 752Q919 772 932 818Q944 865 954 884Q963 903 971 911Q979 919 988 924Q997 930 1010 934Q1022 938 1034 938Q1046 939 1062 933Q1078 927 1086 919Q1095 911 1102 900Q1109 890 1116 872Q1122 853 1128 808Q1134 762 1140 748Q1147 733 1156 721Q1165 709 1174 701Q1182 693 1206 681Q1229 669 1246 666Q1262 662 1284 664Q1305 666 1324 674Q1342 681 1356 690Q1370 700 1378 708Q1387 717 1394 730Q1402 742 1402 758Q1403 773 1392 814Q1380 856 1378 871Q1377 886 1380 896Q1383 906 1391 920Q1399 934 1411 946Q1423 957 1436 962Q1450 968 1474 966Q1498 965 1522 956Q1546 948 1582 926Q1618 903 1636 901Q1655 899 1668 904Q1682 908 1694 916Q1707 924 1720 942Q1733 960 1739 986Z";
+const KLEUR = {goud:'#f4b440',mint:'#b1dfcd',mintl:'#d7f7eb',mauve:'#bca8c3',roze:'#f2cdd7',navy:'#15006b'};
+const DAGNAMEN = ['ma','di','wo','do','vr','za','zo'];
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Math.random().toString(36).slice(2,9);
+const pad = n => String(n).padStart(2,'0');
+const dkey = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const vanKey = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d); };
+const dagNr = d => (d.getDay()+6)%7; // ma=0
+const maandag = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate()-dagNr(x)); return x; };
+const plusDagen = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const minuten = t => { if(!t) return null; const [h,m] = t.split(':').map(Number); return h*60+m; };
+const tijdStr = m => `${pad(Math.floor(m/60))}:${pad(m%60)}`;
+function weekNr(d){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const n = t.getUTCDay()||7; t.setUTCDate(t.getUTCDate()+4-n); const j = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return [t.getUTCFullYear(), Math.ceil(((t-j)/864e5+1)/7)]; }
+const weekKey = d => { const [y,w] = weekNr(d); return `w-${y}-${pad(w)}`; };
+const vandaag = () => new Date();
+
+/* ============ startpakketjes ============ */
+const PAKKETJES = {
+  ochtend:{titel:'Wolkjesochtend', uitleg:'Rustig wakker worden, bewegen, en een tweede ochtend na het schoolbrengen. De laptop pas open als je planner klaar is.', dagdeel:'ochtend', ankers:[
+    {naam:'Even stil zijn', ico:'🕯️', pt:5},
+    {naam:'Mijn affirmatie', ico:'💬', pt:5},
+    {naam:'Mijn dag voor me zien', ico:'🌈', pt:5},
+    {naam:'Bewegen', ico:'🤸', pt:15, soort:'bewegen'},
+    {naam:'Douchen', ico:'🚿', pt:10, soort:'douche'},
+    {naam:'Een paar bladzijden lezen', ico:'📖', pt:10},
+    {naam:'Planner invullen, dan pas de laptop', ico:'📒', pt:15, tijd:'08:45', basis:true}]},
+  overdag:{titel:'Goed voor jezelf overdag', uitleg:'Op tijd lunchen, even naar buiten en de laptop op tijd dicht.', dagdeel:'overdag', ankers:[
+    {naam:'Lunch vóór 13:00', ico:'🥗', pt:15, tijd:'12:30', soort:'lunch', basis:true},
+    {naam:'Rondje buiten', ico:'🚶', pt:10, soort:'bewegen'},
+    {naam:'Glas water bij je laptop', ico:'💧', pt:5},
+    {naam:'Laptop dicht', ico:'💻', pt:10, tijd:'15:00'}]},
+  avond:{titel:'Avond zonder bank', uitleg:'Om 21:00 naar boven, journal in bed en om 22:00 het licht uit.', dagdeel:'avond', ankers:[
+    {naam:'Om 21:00 naar boven', ico:'🌙', pt:20, tijd:'21:00', soort:'boven', basis:true},
+    {naam:'Journal in bed', ico:'✍️', pt:10},
+    {naam:'Even lezen', ico:'📖', pt:5},
+    {naam:'Licht uit om 22:00', ico:'💤', pt:15, tijd:'22:00', soort:'slapen', basis:true}]}
+};
+const STANDAARD_DAGDELEN = [
+  {id:'ochtend', naam:'Ochtend', kleur:'goud', van:'05:00', tot:'09:30', aan:true},
+  {id:'overdag', naam:'Overdag', kleur:'mint', van:'09:30', tot:'18:00', aan:true},
+  {id:'avond', naam:'Avond', kleur:'mauve', van:'18:00', tot:'22:30', aan:true}];
+const STANDAARD_BELONINGEN = [
+  {id:uid(), naam:'Nieuwe stift uitkiezen', maat:'klein', kosten:100},
+  {id:uid(), naam:'Koffie buiten de deur', maat:'middel', kosten:300},
+  {id:uid(), naam:'Een middag alleen weg', maat:'groot', kosten:800}];
+const MAAT_KLEUR = {klein:KLEUR.mintl, middel:KLEUR.roze, groot:'#ffe7b8'};
+
+/* ============ accessoires (op het wolkje) ============ */
+const ACC = {
+  bloemetje:{naam:'Bloemetje', kosten:60, plek:'hoofd', svg:`<g transform="translate(640 470) rotate(-14)">${[0,72,144,216,288].map(a=>`<ellipse cx="0" cy="-62" rx="44" ry="62" fill="#f2cdd7" stroke="#15006b" stroke-width="12" transform="rotate(${a})"/>`).join('')}<circle r="42" fill="#f4b440" stroke="#15006b" stroke-width="12"/></g>`},
+  strik:{naam:'Strikje', kosten:80, plek:'hoofd', svg:`<g transform="translate(600 520) rotate(-20)" stroke="#15006b" stroke-width="13" stroke-linejoin="round"><path d="M0 0 L-150 -85 Q-175 0 -150 85 Z" fill="#f2cdd7"/><path d="M0 0 L150 -85 Q175 0 150 85 Z" fill="#f2cdd7"/><circle r="42" fill="#bca8c3"/></g>`},
+  kerstmuts:{naam:'Kerstmuts', kosten:100, plek:'hoofd', svg:`<g stroke="#15006b" stroke-width="13" stroke-linejoin="round"><path d="M1010 500 Q1080 200 1300 150 Q1440 140 1480 260 Q1400 230 1380 300 L1400 500 Z" fill="#f2cdd7"/><rect x="975" y="455" width="460" height="95" rx="47" fill="#fff"/><circle cx="1490" cy="250" r="62" fill="#fff"/></g>`},
+  kroontje:{naam:'Kroontje', kosten:250, plek:'hoofd', svg:`<g transform="translate(1200 330) rotate(8)" stroke="#15006b" stroke-width="13" stroke-linejoin="round"><path d="M-170 110 L-190 -60 L-90 20 L0 -110 L90 20 L190 -60 L170 110 Z" fill="#f4b440"/><circle cx="0" cy="-110" r="26" fill="#f2cdd7"/><circle cx="-190" cy="-60" r="22" fill="#bca8c3"/><circle cx="190" cy="-60" r="22" fill="#bca8c3"/></g>`},
+  zonnebril:{naam:'Zonnebril', kosten:120, plek:'gezicht', svg:`<g stroke="#15006b" stroke-width="14"><rect x="680" y="905" width="230" height="150" rx="60" fill="#15006b"/><rect x="1030" y="905" width="230" height="150" rx="60" fill="#15006b"/><path d="M910 960 Q970 925 1030 960" fill="none"/><path d="M725 940 l50 -20" stroke="#fff" stroke-width="16" stroke-linecap="round"/><path d="M1075 940 l50 -20" stroke="#fff" stroke-width="16" stroke-linecap="round"/></g>`},
+  sjaaltje:{naam:'Sjaaltje', kosten:150, plek:'nek', svg:`<g stroke="#15006b" stroke-width="13" stroke-linejoin="round"><path d="M640 1560 Q1000 1700 1380 1520 L1405 1625 Q1000 1820 620 1665 Z" fill="#b1dfcd"/><path d="M1120 1630 L1180 1800 L1290 1770 L1240 1600 Z" fill="#b1dfcd"/><path d="M760 1610 L770 1710 M900 1650 L905 1750 M1040 1650 L1040 1745" stroke="#f4b440" stroke-width="22" stroke-linecap="round"/></g>`},
+};
+const SLAAPMUTS = `<g stroke="#15006b" stroke-width="13" stroke-linejoin="round"><path d="M1000 500 Q1150 160 1450 230 Q1600 280 1640 470 Q1500 380 1430 470 L1420 500 Z" fill="#bca8c3"/><rect x="965" y="455" width="480" height="95" rx="47" fill="#d7f7eb"/><path d="M1640 470 l18 44 46 4 -36 30 12 45 -40 -25 -40 25 12 -45 -36 -30 46 -4 z" fill="#f4b440"/></g>`;
+
+/* ============ badges ============ */
+const BADGES = [
+  {id:'start', ico:'🌱', naam:'Eerste stapje', uitleg:'Je eerste anker afgevinkt', doel:1, tel:s=>s.totaal},
+  {id:'vol', ico:'☁️', naam:'Wolkje vol', uitleg:'Een dag met al je ankers', doel:1, tel:s=>s.volleDagen},
+  {id:'rij3', ico:'✨', naam:'Drie op rij', uitleg:'3 geslaagde dagen achter elkaar', doel:3, tel:s=>s.besteReeks},
+  {id:'rij7', ico:'🌟', naam:'Hele week', uitleg:'7 geslaagde dagen achter elkaar', doel:7, tel:s=>s.besteReeks},
+  {id:'boven', ico:'🛋️', naam:'Bankontsnapper', uitleg:'5x op tijd naar boven', doel:5, tel:s=>s.soort.boven||0},
+  {id:'douche', ico:'🚿', naam:'Douchekoningin', uitleg:'7x gedoucht', doel:7, tel:s=>s.soort.douche||0},
+  {id:'lunch', ico:'🥗', naam:'Lunchheldin', uitleg:'7x op tijd geluncht', doel:7, tel:s=>s.soort.lunch||0},
+  {id:'bewegen', ico:'🤸', naam:'Beweegwolkje', uitleg:'10x bewogen', doel:10, tel:s=>s.soort.bewegen||0},
+  {id:'slapen', ico:'💤', naam:'Nachtwolkje', uitleg:'7x het licht op tijd uit', doel:7, tel:s=>s.soort.slapen||0},
+  {id:'vroeg', ico:'🐦', naam:'Vroege vogel', uitleg:'5x opgestaan op je doeltijd', doel:5, tel:s=>s.soort.opstaanDoel||0},
+  {id:'dertig', ico:'🏅', naam:'Dertig dagen', uitleg:'30 geslaagde dagen', doel:30, tel:s=>s.geslaagd},
+  {id:'kunst', ico:'🎨', naam:'Kleurplaatkunstenaar', uitleg:'Een week met 7 geslaagde dagen', doel:1, tel:s=>s.volleWeken},
+];
+
+/* ============ opslag ============ */
+const S = { settings:null, days:{}, weeks:{} };
+const Opslag = {
+  modus:'lokaal', db:null, col:null, rijen:{}, timers:{},
+  async start(){
+    let klaar = false;
+    const val = new Promise(r => setTimeout(() => r(null), 10000));
+    try{
+      if(!CLUB && window.claude && claude.use){
+        const db = await Promise.race([claude.use('db'), val]);
+        const user = db ? await Promise.race([claude.use('user'), val]) : null;
+        const id = user && user.id ? await user.id() : null;
+        if(db && id){
+          this.db = db; this.col = db.collection('data/users/' + id);
+          const snap = await Promise.race([this.col.get(), val]);
+          if(snap){
+            this.modus = 'online';
+            snap.docs.forEach(d => this.lees(d.id, d.data()));
+            klaar = true;
+            this.col.onSnapshot(sn => {
+              let veranderd = false;
+              sn.docChanges().forEach(ch => {
+                if(ch.doc.metadata.hasPendingWrites || this.timers[ch.doc.id]) return;
+                if(ch.type === 'removed') return;
+                this.lees(ch.doc.id, ch.doc.data()); veranderd = true;
+              });
+              if(veranderd) render();
+            }, () => {});
+          }
+        }
+      }
+    }catch(e){ console.warn(e); }
+    if(!klaar){
+      this.modus = 'lokaal';
+      try{
+        const raw = localStorage.getItem('wolkje-v1');
+        if(raw){ const o = JSON.parse(raw); Object.entries(o).forEach(([k,v]) => this.lees(k,v)); }
+      }catch(e){}
+    }
+  },
+  lees(id, data){
+    if(!data) return;
+    const kopie = JSON.parse(JSON.stringify(data));
+    if(id === 'settings') S.settings = kopie;
+    else if(id.startsWith('d-')) S.days[id.slice(2)] = kopie;
+    else if(id.startsWith('w-')) S.weeks[id] = kopie;
+  },
+  bewaar(id){
+    const data = id === 'settings' ? S.settings : id.startsWith('d-') ? S.days[id.slice(2)] : S.weeks[id];
+    clearTimeout(this.timers[id]);
+    this.timers[id] = setTimeout(() => this.schrijf(id, data), 500);
+  },
+  wachtrij:{},
+  flush(){
+    Object.keys(this.timers).forEach(id => {
+      clearTimeout(this.timers[id]);
+      const data = id === 'settings' ? S.settings : id.startsWith('d-') ? S.days[id.slice(2)] : S.weeks[id];
+      this.schrijf(id, data);
+    });
+  },
+  async schrijf(id, data){
+    delete this.timers[id];
+    if(this.modus === 'online'){
+      const vorige = this.wachtrij[id] || Promise.resolve();
+      this.wachtrij[id] = vorige.then(async () => {
+        try{ await this.col.doc(id).set(JSON.parse(JSON.stringify(data))); }
+        catch(e){
+          if(e && e.code === 'unavailable'){ await new Promise(r=>setTimeout(r,1200+Math.random()*800)); try{ await this.col.doc(id).set(JSON.parse(JSON.stringify(data))); }catch(e2){ toast('Opslaan lukte even niet. Probeer het zo nog eens.'); } }
+          else if(e && e.code === 'quota_exceeded'){ toast('Je opslag is vol. Laat het Trijntje weten.'); }
+          else toast('Opslaan lukte even niet.');
+        }
+      });
+    } else {
+      try{
+        const alles = {settings:S.settings};
+        Object.entries(S.days).forEach(([k,v]) => alles['d-'+k] = v);
+        Object.entries(S.weeks).forEach(([k,v]) => alles[k] = v);
+        localStorage.setItem('wolkje-v1', JSON.stringify(alles));
+      }catch(e){}
+    }
+  }
+};
+
+/* ============ afgeleiden ============ */
+function dag(k){ if(!S.days[k]) S.days[k] = {datum:k, energie:null, gedaan:{}, bonus:0, vol:false}; return S.days[k]; }
+function dagdeelVan(id){ return S.settings.dagdelen.find(d => d.id === id); }
+function ankersVoor(datum){
+  const dn = dagNr(datum);
+  const aan = new Set(S.settings.dagdelen.filter(d => d.aan).map(d => d.id));
+  const lijst = S.settings.ankers.filter(a => aan.has(a.dagdeel) && (!a.dagen || a.dagen.includes(dn)));
+  const r = reisje(datum);
+  if(r) lijst.unshift({id:'opstaan', naam:`Opgestaan om ${tijdStr(r.wek)}`, ico:'⏰', pt:15, dagdeel:'ochtend', tijd:tijdStr(r.wek), soort:'opstaan'});
+  const volgorde = S.settings.dagdelen.map(d => d.id);
+  return lijst.sort((a,b) => volgorde.indexOf(a.dagdeel) - volgorde.indexOf(b.dagdeel));
+}
+function dagStatus(k){
+  const d = S.days[k]; const datum = vanKey(k);
+  const ankers = ankersVoor(datum);
+  const gedaan = d ? ankers.filter(a => d.gedaan[a.id] != null).length : 0;
+  const basis = ankers.filter(a => a.basis);
+  const basisKlaar = d && basis.length ? basis.every(a => d.gedaan[a.id] != null) : false;
+  let geslaagd;
+  if(d && d.energie === 'rood') geslaagd = basis.length ? basisKlaar : gedaan >= 1;
+  else if(d && d.energie === 'groen') geslaagd = ankers.length > 0 && gedaan === ankers.length;
+  else geslaagd = ankers.length > 0 && (gedaan >= Math.ceil(ankers.length/2) || (basis.length && basisKlaar && gedaan >= basis.length + 1));
+  return {ankers, gedaan, totaal:ankers.length, geslaagd, vol: ankers.length > 0 && gedaan === ankers.length};
+}
+function dagPunten(d){ return Object.values(d.gedaan || {}).reduce((s,v) => s + (Number(v)||0), 0) + (d.bonus||0) + (d.vol ? 20 : 0); }
+function verdiend(){ return Object.values(S.days).reduce((s,d) => s + dagPunten(d), 0); }
+function saldo(){
+  const ingew = (S.settings.ingewisseld||[]).reduce((s,x) => s + x.kosten, 0);
+  const acc = (S.settings.gekocht||[]).filter(id => !(S.settings.cadeauAcc||[]).includes(id)).reduce((s,id) => s + (ACC[id]?.kosten||0), 0);
+  return verdiend() - ingew - acc;
+}
+function reeks(){
+  let n = 0; let d = vandaag();
+  if(!dagStatus(dkey(d)).geslaagd) d = plusDagen(d,-1);
+  for(let i=0;i<400;i++){ const k = dkey(d); if(S.days[k] && dagStatus(k).geslaagd){ n++; d = plusDagen(d,-1); } else break; }
+  return n;
+}
+function statistiek(){
+  const s = {totaal:0, volleDagen:0, besteReeks:0, geslaagd:0, soort:{}, volleWeken:0};
+  const keys = Object.keys(S.days).sort();
+  let rij = 0, vorige = null; const perWeek = {};
+  keys.forEach(k => {
+    const d = S.days[k]; const st = dagStatus(k);
+    const n = Object.keys(d.gedaan||{}).length; s.totaal += n;
+    if(d.vol) s.volleDagen++;
+    st.ankers.forEach(a => { if(d.gedaan[a.id] != null && a.soort){ s.soort[a.soort] = (s.soort[a.soort]||0)+1; } });
+    if(d.opstaanDoel) s.soort.opstaanDoel = (s.soort.opstaanDoel||0)+1;
+    if(st.geslaagd){ s.geslaagd++; const wk = weekKey(vanKey(k)); perWeek[wk] = (perWeek[wk]||0)+1;
+      rij = (vorige && dkey(plusDagen(vanKey(vorige),1)) === k) ? rij+1 : 1; vorige = k; s.besteReeks = Math.max(s.besteReeks, rij); }
+  });
+  s.volleWeken = Object.values(perWeek).filter(n => n >= 7).length;
+  return s;
+}
+function reisje(datum){
+  const r = S.settings.reisje; if(!r || !r.aan) return null;
+  const sd = vanKey(r.start); let start = maandag(sd);
+  if(dagNr(sd) >= 5) start = plusDagen(start, 7);
+  const weken = Math.max(0, Math.round((maandag(datum) - start) / (7*864e5)));
+  const pauzes = (r.pauzes||[]).filter(w => w <= weken).length;
+  const stap = Math.max(0, weken - pauzes) + 1;
+  const van = minuten(r.van), doel = minuten(r.doel);
+  const wek = Number(r.stap) === 0 ? doel : Math.max(doel, van - stap * r.stap);
+  return {wek, doel, van, week:weken, bereikt: wek === doel, pauzeDezeWeek:(r.pauzes||[]).includes(weken)};
+}
+function huidigDagdeel(){
+  const nu = vandaag(); const m = nu.getHours()*60 + nu.getMinutes();
+  const aan = S.settings.dagdelen.filter(d => d.aan);
+  for(const d of aan){ const v = minuten(d.van), t = minuten(d.tot); if(m >= v && m < t) return d; }
+  const eerste = Math.min(...aan.map(d => minuten(d.van)).concat([300]));
+  const laatste = Math.max(...aan.map(d => minuten(d.tot)).concat([1350]));
+  if(m >= laatste || m < eerste) return {id:'nacht', naam:'Nacht', kleur:'navy'};
+  return aan[0] || {id:'overdag', kleur:'mint'};
+}
+
+/* ============ wolkje tekenen ============ */
+function tekenWolk(svg, opts){
+  const {kleur, vul, slaap, accs = [], zachtjes} = opts;
+  const vulKleur = {goud:'#f9d48a', mint:'#d7f7eb', mauve:'#ddd0e2', roze:'#f8e1e7', navy:'#cfc8ee'}[kleur] || '#d7f7eb';
+  const rand = KLEUR[kleur] || KLEUR.mint;
+  const h = 760, top = 660;
+  const y = top + h * (1 - vul);
+  const ogen = slaap
+    ? `<path d="M740 990 Q790 1030 840 990" fill="none" stroke="#15006b" stroke-width="22" stroke-linecap="round"/><path d="M1100 990 Q1150 1030 1200 990" fill="none" stroke="#15006b" stroke-width="22" stroke-linecap="round"/>`
+    : `<ellipse class="oog" cx="790" cy="985" rx="36" ry="46" fill="#15006b"/><ellipse class="oog" cx="1150" cy="985" rx="36" ry="46" fill="#15006b"/><circle cx="802" cy="968" r="11" fill="#fff"/><circle cx="1162" cy="968" r="11" fill="#fff"/>`;
+  const mond = slaap ? `<ellipse cx="970" cy="1095" rx="22" ry="16" fill="#15006b"/>`
+    : zachtjes ? `<path d="M925 1085 Q970 1110 1015 1085" fill="none" stroke="#15006b" stroke-width="20" stroke-linecap="round"/>`
+    : `<path d="M905 1070 Q970 1150 1035 1070" fill="#15006b" stroke="#15006b" stroke-width="18" stroke-linejoin="round"/><path d="M940 1112 Q970 1128 1000 1112" fill="#f2a7ba"/>`;
+  const plekken = {};
+  accs.forEach(id => { if(ACC[id]) plekken[ACC[id].plek] = id; });
+  const hoofd = slaap ? SLAAPMUTS : (plekken.hoofd ? ACC[plekken.hoofd].svg : '');
+  svg.innerHTML = `
+    <defs><clipPath id="binnen-${svg.id||'x'}"><path d="${INNER}"/></clipPath></defs>
+    <g class="lichaam">
+      <path d="${INNER}" fill="#fff"/>
+      <rect id="${svg.id==='wolk'?'vulling':''}" x="300" y="${y}" width="1500" height="${h*vul+40}" fill="${vulKleur}" clip-path="url(#binnen-${svg.id||'x'})"/>
+      <path d="${OUTER} ${INNER}" fill="${rand}" fill-rule="evenodd"/>
+      <circle cx="660" cy="1085" r="46" fill="#f2cdd7" opacity=".9"/><circle cx="1245" cy="1065" r="42" fill="#f2cdd7" opacity=".9"/>
+      <g transform="translate(970 1030) scale(1.25) translate(-970 -1030)">${ogen}${mond}${!slaap && plekken.gezicht ? ACC[plekken.gezicht].svg : ''}</g>
+      ${plekken.nek ? ACC[plekken.nek].svg : ''}
+      ${hoofd}
+      ${slaap ? `<text class="zzz" x="1700" y="560" font-size="160">z</text><text class="zzz" x="1800" y="430" font-size="120" style="animation-delay:1s">z</text>` : ''}
+    </g>`;
+}
+
+/* ============ teksten van het wolkje ============ */
+function kies(lijst, zaad){ let h = 0; for(const c of zaad) h = (h*31 + c.charCodeAt(0)) >>> 0; return lijst[h % lijst.length]; }
+function ballonTekst(st, dd, d){
+  const naam = S.settings.naam || 'Wolkje';
+  const k = dkey(vandaag());
+  if(dd.id === 'nacht') return kies(['Sssst... tijd om te slapen. Morgen weer een nieuwe dag. 💤','Licht uit, telefoon weg. Je hebt het goed gedaan vandaag.','Ik ga ook slapen hoor. Welterusten! 🌙'], k);
+  if(!d.energie) return kies([`Goeiemorgen! Hoe is je energie vandaag? Tik het even aan.`,`Hoi, ik ben ${naam}! Eerst even voelen: hoe gaat het met je?`], k);
+  if(d.energie === 'rood' && !st.vol) return kies(['Zachte dag vandaag. Alleen je basisankers tellen, en dat is MEER dan genoeg. 💗','Rustig aan vandaag. Ik ben er gewoon, ook als het niet lukt.','Een rode dag mag. Wees lief voor jezelf vandaag.'], k);
+  if(st.vol) return kies(['Helemaal vol! Wat ben je goed bezig, ik ben er een beetje trots op. ☁️✨','Alles gedaan! Ik maak een vreugdesprongetje voor je.','Een vol wolkje! Geniet er even van.'], k);
+  if(st.gedaan === 0){
+    if(dd.id === 'ochtend') return kies(['Goeiemorgen! Eén klein stapje is genoeg om te beginnen.','Rustig opstarten. Wat is je eerste anker vandaag?'], k);
+    if(dd.id === 'avond') return kies(['Je avond begint. Niet ploffen hè, ik hou je in de gaten. 😉','Nog niks afgevinkt? Geeft niks, de avond telt ook!'], k);
+    return kies(['Hoi! Al geluncht? Eén vinkje en we zijn op weg.','Even pauze van je laptop? Ik wacht op je.'], k);
+  }
+  if(dd.id === 'avond') return kies(['Bijna bedtijd. Om 21:00 naar boven, jij kunt het!','Laptop dicht, telefoon weg, boven ligt je journal op je te wachten.'], k + st.gedaan);
+  if(st.geslaagd) return kies(['Je dag telt al! Alles wat er nu nog bij komt is extra. 🌟','Kijk jou gaan! Je wolkje kleurt lekker vol.'], k + st.gedaan);
+  return kies(['Goed bezig! Ik word steeds voller. 😊','Nog eentje? Je doet het echt fijn vandaag.','Stapje voor stapje, zo komen we er.'], k + st.gedaan);
+}
+
+/* ============ render: vandaag ============ */
+function renderVandaag(){
+  const nu = vandaag(); const k = dkey(nu); const d = dag(k);
+  const st = dagStatus(k); const dd = huidigDagdeel();
+  $('#datum').textContent = nu.toLocaleDateString('nl-NL', {weekday:'long', day:'numeric', month:'long'});
+  const kleur = d.energie === 'rood' && dd.id !== 'nacht' ? 'roze' : dd.kleur;
+  const vul = st.totaal ? st.gedaan / st.totaal : 0;
+  const svg = $('#wolk');
+  tekenWolk(svg, {kleur, vul, slaap: dd.id === 'nacht', accs: S.settings.aan || [], zachtjes: d.energie === 'rood'});
+  svg.querySelector('.lichaam').classList.add('zweef');
+  $('#ballon').textContent = ballonTekst(st, dd, d);
+  $('#s-gedaan').textContent = `${st.gedaan}/${st.totaal}`;
+  $('#s-reeks').textContent = reeks();
+  $('#s-punten').textContent = saldo();
+  document.querySelectorAll('.energie button').forEach(b => b.setAttribute('aria-pressed', String(d.energie === b.dataset.e)));
+  $('#energie-uitleg').textContent = d.energie === 'rood' ? 'zachte dag: je basisankers zijn genoeg' : d.energie === 'groen' ? 'volle energie: ga voor al je ankers' : d.energie === 'oranje' ? 'de helft van je ankers is een geslaagde dag' : 'elke ochtend even aantikken';
+
+  const r = reisje(nu);
+  const mini = $('#reisje-mini');
+  if(r){ mini.hidden = false; mini.innerHTML = `<div class="rij tussen"><h3>Opstaan-reisje</h3><span class="chip">wekker ${tijdStr(r.wek)}</span></div><div class="balk"><i style="width:${Math.round(100*(r.van-r.wek)/Math.max(1,r.van-r.doel))}%"></i></div><span class="klein">${Number(S.settings.reisje.stap) === 0 ? `In één keer naar ${tijdStr(r.doel)}. Zet hem op! 💪` : r.bereikt ? `Je bent er! Doeltijd ${tijdStr(r.doel)} bereikt. 🐦` : `Van ${tijdStr(r.van)} naar ${tijdStr(r.doel)}, stapje voor stapje.`}</span>`; }
+  else mini.hidden = true;
+
+  const rood = d.energie === 'rood';
+  const groepen = S.settings.dagdelen.filter(x => x.aan).map(x => ({dd:x, ankers: st.ankers.filter(a => a.dagdeel === x.id)}));
+  const box = $('#ankers');
+  if(!groepen.length){ box.innerHTML = `<div class="kaart"><p class="leeg">Alle dagdelen staan uit.</p><button class="knop mini" style="align-self:center" data-open="dagdelen">Dagdelen aanzetten</button></div>`; return; }
+  box.innerHTML = groepen.map(g => `
+    <div class="kaart dagdeel">
+      <div class="dagdeel-kop"><span class="streep" style="background:${KLEUR[g.dd.kleur]}"></span><h2>${esc(g.dd.naam)}</h2><span class="klein" style="margin-left:auto">${g.ankers.filter(a => d.gedaan[a.id] != null).length}/${g.ankers.length}</span><button class="knop mini lijn" data-actie="dd-bewerk" data-id="${g.dd.id}" aria-label="${esc(g.dd.naam)} aanpassen">✏️ Aanpassen</button></div>
+      ${g.ankers.length ? '' : '<p class="leeg" style="margin:0">Nog geen ankers. Wat wil jij in dit dagdeel voor jezelf doen?</p>'}
+      ${g.ankers.map(a => {
+        const aanGevinkt = d.gedaan[a.id] != null;
+        return `<button class="anker ${rood && !a.basis && !aanGevinkt ? 'bonus' : ''}" data-anker="${esc(a.id)}" aria-pressed="${aanGevinkt}">
+          <span class="vink"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>
+          <span class="ico" aria-hidden="true">${esc(a.ico||'☁️')}</span>
+          <span class="naam">${esc(a.naam)}${a.basis ? '<span class="basis-tag">basis</span>' : ''}${a.tijd ? `<br><span class="tijd">${esc(a.tijd)}</span>` : ''}</span>
+          <span class="pt">+${a.pt}</span></button>`;}).join('')}
+      <button class="tekstknop" style="align-self:flex-start" data-actie="anker-nieuw" data-id="${g.dd.id}">+ Anker toevoegen</button>
+    </div>`).join('') + `<button class="tekstknop" style="align-self:center" data-open="dagdelen">Dagdelen aan- of uitzetten</button>`;
+}
+
+function vinkAan(id){
+  const nu = vandaag(); const k = dkey(nu); const d = dag(k);
+  const st0 = dagStatus(k);
+  const a = st0.ankers.find(x => x.id === id); if(!a) return;
+  if(d.gedaan[id] != null){ delete d.gedaan[id]; if(id === 'opstaan') d.opstaanDoel = false; }
+  else {
+    d.gedaan[id] = a.pt;
+    if(id === 'opstaan'){ const r = reisje(nu); d.opstaanDoel = !!(r && r.bereikt); }
+    springen();
+    const st = dagStatus(k);
+    if(st.vol && !d.vol){ d.vol = true; setTimeout(() => toast(`Wolkje vol! +20 bonuspunten ☁️✨`), 400); }
+    else if(!d.verrassing && Math.random() < 0.14){ verrassing(d); }
+    else toast(kies(['Yes! +' + a.pt, 'Mooi zo! +' + a.pt, 'Vinkje! +' + a.pt, 'Goed gedaan! +' + a.pt], id + Date.now()));
+  }
+  const st = dagStatus(k); if(!st.vol && d.vol) d.vol = false;
+  Opslag.bewaar('d-' + k); Opslag.bewaar('settings'); render();
+}
+function springen(){ const g = $('#wolk .lichaam'); if(!g) return; g.classList.remove('zweef'); g.classList.add('spring'); setTimeout(() => { g.classList.remove('spring'); g.classList.add('zweef'); }, 750); }
+
+const BRIEFJES = ['Je hoeft niet alles te doen. Je doet al zoveel.','Rust is ook productief. Echt waar.','Je bent een fijne mama, ook op drukke dagen.','Kleine stapjes tellen het hardst.','Vandaag ben jij ook even aan de beurt.','Wat lief dat je dit voor jezelf doet.'];
+function verrassing(d){
+  d.verrassing = true;
+  const nietIn = Object.keys(ACC).filter(id => !(S.settings.gekocht||[]).includes(id) && ACC[id].kosten <= 120);
+  const r = Math.random();
+  let html;
+  if(nietIn.length && r < 0.3){
+    const id = nietIn[Math.floor(Math.random()*nietIn.length)];
+    S.settings.gekocht = [...(S.settings.gekocht||[]), id];
+    S.settings.cadeauAcc = [...(S.settings.cadeauAcc||[]), id];
+    html = `<div class="doos">🎁</div><h2>Een cadeautje!</h2><p>Je krijgt zomaar een <b>${esc(ACC[id].naam.toLowerCase())}</b> voor je wolkje. Hij ligt in je kastje.</p><svg viewBox="60 180 1940 1560" id="cadeau-wolk" style="width:200px"></svg><button class="knop" data-actie="draag" data-id="${id}">Meteen aantrekken</button><button class="tekstknop" data-actie="sluit">Later</button>`;
+    d.bonus = (d.bonus||0);
+    openVel(`<div class="cadeau">${html}</div>`);
+    const prev = (S.settings.aan||[]).filter(x => ACC[x]?.plek !== ACC[id].plek).concat(id);
+    tekenWolk($('#cadeau-wolk'), {kleur:'goud', vul:.6, accs:prev});
+  } else if(r < 0.65){
+    d.bonus = (d.bonus||0) + 25;
+    openVel(`<div class="cadeau"><div class="doos">🎁</div><h2>Verrassing!</h2><p>Zomaar <b>25 bonuspunten</b> in je spaarpot. Omdat je het verdient.</p><button class="knop" data-actie="sluit">Dankjewel!</button></div>`);
+  } else {
+    d.bonus = (d.bonus||0) + 10;
+    const b = BRIEFJES[Math.floor(Math.random()*BRIEFJES.length)];
+    openVel(`<div class="cadeau"><div class="doos">💌</div><h2>Een briefje van ${esc(S.settings.naam||'Wolkje')}</h2><p style="font-size:19px;color:var(--navy);font-weight:600">"${esc(b)}"</p><p class="klein">+10 punten</p><button class="knop" data-actie="sluit">Lief, dankjewel</button></div>`);
+  }
+}
+
+/* ============ render: week ============ */
+let kransTeller = 0;
+const KRANS_KLEUR = ['goud','mint','mauve','roze','goud','mint','mauve'];
+const VUL_KLEUR = {goud:'#f9d48a', mint:'#d7f7eb', mauve:'#ddd0e2', roze:'#f8e1e7', navy:'#ddd0e2'};
+function wolkjeKlein(x, y, sc, kleur, frac, id, gezicht){
+  const top = 660 + 760 * (1 - frac);
+  const ogen = gezicht === 'blij'
+    ? '<path d="M745 1000 Q790 940 835 1000" fill="none" stroke="#15006b" stroke-width="34" stroke-linecap="round"/><path d="M1105 1000 Q1150 940 1195 1000" fill="none" stroke="#15006b" stroke-width="34" stroke-linecap="round"/><path d="M895 1065 Q970 1170 1045 1065 Z" fill="#15006b"/>'
+    : gezicht === 'geen' ? ''
+    : '<ellipse cx="790" cy="985" rx="44" ry="54" fill="#15006b"/><ellipse cx="1150" cy="985" rx="44" ry="54" fill="#15006b"/>' + (frac > 0 ? '<path d="M905 1070 Q970 1150 1035 1070" fill="#15006b"/>' : '<path d="M925 1090 L1015 1090" stroke="#15006b" stroke-width="30" stroke-linecap="round"/>');
+  return `<g transform="translate(${(x - 1026*sc).toFixed(1)} ${(y - 1065*sc).toFixed(1)}) scale(${sc})"><clipPath id="${id}"><path d="${INNER}"/></clipPath><path d="${INNER}" fill="#fff"/>${frac > 0 ? `<rect x="300" y="${top}" width="1500" height="${760*frac + 60}" fill="${VUL_KLEUR[kleur]}" clip-path="url(#${id})"/>` : ''}<path d="${OUTER} ${INNER}" fill="${KLEUR[kleur]}" fill-rule="evenodd"/>${ogen}</g>`;
+}
+function ster(px, py, r){ return `<polygon points="${[...Array(8)].map((_,j) => { const rr = j%2 ? r*0.38 : r; const a = Math.PI/4*j - Math.PI/2; return (px + rr*Math.cos(a)).toFixed(1) + ',' + (py + rr*Math.sin(a)).toFixed(1); }).join(' ')}" fill="#f4b440"/>`; }
+function mandalaSVG(maandagDatum, klein){
+  const n = ++kransTeller, cx = 300, cy = 300, R = 190;
+  const vandaagK = dkey(vandaag());
+  let wekGedaan = 0, wekTotaal = 0, delen = '';
+  for(let i = 0; i < 7; i++){
+    const dt = plusDagen(maandagDatum, i), k = dkey(dt), st = dagStatus(k), d = S.days[k];
+    const gedaan = d ? st.gedaan : 0; const frac = st.totaal ? gedaan / st.totaal : 0;
+    wekGedaan += gedaan; wekTotaal += st.totaal;
+    const am = (-90 + i * 360/7) * Math.PI/180, x = cx + R*Math.cos(am), y = cy + R*Math.sin(am);
+    const vol = st.totaal > 0 && gedaan === st.totaal;
+    const toekomst = k > vandaagK;
+    delen += `<g opacity="${toekomst ? .45 : 1}"><title>${DAGNAMEN[i]}: ${gedaan}/${st.totaal}</title>${wolkjeKlein(x, y, 0.075, KRANS_KLEUR[i], frac, `k${n}d${i}`, vol ? 'blij' : 'gewoon')}</g>`;
+    if(vol) delen += ster(x - 62, y - 48, 11) + ster(x + 64, y - 44, 9);
+    if(!klein) delen += `<text x="${x.toFixed(0)}" y="${(y + 70).toFixed(0)}" text-anchor="middle" font-size="22" font-weight="700" fill="${k === vandaagK ? '#c98a1e' : '#15006b'}" font-family="Quicksand, sans-serif">${DAGNAMEN[i]}</text>`;
+  }
+  const [, wn] = weekNr(maandagDatum);
+  const wf = wekTotaal ? wekGedaan / wekTotaal : 0;
+  const midden = wolkjeKlein(cx, cy, 0.125, 'navy', wf, `k${n}m`, 'geen') +
+    `<text x="${cx - 6}" y="${cy + 3}" text-anchor="middle" font-size="16" font-weight="700" fill="#15006b" font-family="Quicksand, sans-serif">week ${wn}</text>`;
+  return `<svg viewBox="0 0 600 600" class="${klein ? '' : 'mandala'}" role="img" aria-label="Wolkjeskrans week ${wn}"><defs><radialGradient id="kg${n}"><stop offset="0" stop-color="#fdf3f6"/><stop offset="1" stop-color="#d7f7eb"/></radialGradient></defs><circle cx="${cx}" cy="${cy}" r="292" fill="url(#kg${n})"/><circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#b1dfcd" stroke-width="6" stroke-dasharray="2 14" stroke-linecap="round"/>${delen}${midden}</svg>`;
+}
+function renderWeek(){
+  const nu = vandaag(); const ma = maandag(nu); const [, wn] = weekNr(nu);
+  $('#week-nr').textContent = 'week ' + wn;
+  $('#mandala').innerHTML = mandalaSVG(ma, false);
+  let geslaagd = 0, punten = 0; const telling = {};
+  for(let i=0;i<7;i++){ const k = dkey(plusDagen(ma,i)); const d = S.days[k]; if(!d) continue; if(dagStatus(k).geslaagd) geslaagd++; punten += dagPunten(d);
+    dagStatus(k).ankers.forEach(a => { if(d.gedaan[a.id] != null) telling[a.naam] = (telling[a.naam]||0)+1; }); }
+  const top = Object.entries(telling).sort((a,b) => b[1]-a[1])[0];
+  $('#terugblik-stats').innerHTML = `<div class="stat"><b>${geslaagd}/7</b><span>geslaagde dagen</span></div><div class="stat"><b>${punten}</b><span>punten</span></div><div class="stat"><b style="font-size:15px;max-width:150px;text-align:center">${top ? esc(top[0]) : '–'}</b><span>vaakst gedaan</span></div>`;
+  const wk = weekKey(nu); const w = S.weeks[wk] || {};
+  const g = $('#tb-goed'), p = $('#tb-planner');
+  if(document.activeElement !== g) g.value = w.goed || '';
+  if(document.activeElement !== p) p.value = w.gun || '';
+  const volgende = reisje(plusDagen(ma, 7));
+  $('#tb-wek').textContent = volgende ? (volgende.bereikt ? `Volgende week blijft je wekker op ${tijdStr(volgende.wek)}. Je doeltijd!` : `Volgende week gaat je wekker om ${tijdStr(volgende.wek)}. Lukt dat? Zo niet, pas het aan bij Meer.`) : '';
+
+  // hoofdstuk
+  const h = S.settings.hoofdstuk;
+  const hk = $('#hoofdstuk-kaart');
+  if(h && h.doel){
+    const sd = vanKey(h.start); let start = maandag(sd); if(dagNr(sd) >= 5) start = plusDagen(start, 7);
+    const dagenBezig = Math.max(0, Math.round((vanKey(dkey(nu)) - start) / 864e5));
+    const week = Math.min(4, Math.floor(dagenBezig/7) + 1);
+    const klaar = dagenBezig >= 28;
+    hk.innerHTML = `<div class="rij tussen"><h2>Jouw hoofdstuk</h2><span class="chip">${klaar ? 'afgerond' : `week ${week} van 4`}</span></div>
+      <p style="margin:0;font-size:18px;font-weight:700;color:var(--navy)">"${esc(h.doel)}"</p>
+      <div class="balk"><i style="width:${Math.min(100, Math.round(100*(dagenBezig+1)/28))}%"></i></div>
+      ${klaar ? `<p style="margin:0">Vier weken! Hoe was het? Ga door, pas je doel aan, of neem even pauze.</p><div class="rij" style="flex-wrap:wrap"><button class="knop mini" data-actie="hoofdstuk-nieuw">Nieuw hoofdstuk</button><button class="knop mini lijn" data-actie="hoofdstuk-door">Nog 4 weken door</button></div>` : `<button class="tekstknop" style="align-self:flex-start" data-actie="hoofdstuk-nieuw">Doel aanpassen</button>`}`;
+  } else {
+    hk.innerHTML = `<h2>Jouw hoofdstuk</h2><p style="margin:0">Kies één groter doel voor de komende 4 weken. Bijvoorbeeld: "Ik sta weer op na mijn werk".</p><button class="knop mini" style="align-self:flex-start" data-actie="hoofdstuk-nieuw">Hoofdstuk beginnen</button>`;
+  }
+
+  // galerij
+  const weken = new Set(Object.keys(S.days).map(k => dkey(maandag(vanKey(k)))));
+  weken.delete(dkey(ma));
+  const lijst = [...weken].sort().reverse().slice(0, 24);
+  $('#galerij').innerHTML = lijst.length ? lijst.map(k => { const m = vanKey(k); return `<button data-actie="oude-week" data-id="${k}" style="all:unset;cursor:pointer;border-radius:14px" aria-label="Bekijk week van ${m.toLocaleDateString('nl-NL',{day:'numeric',month:'long'})}"><figure>${mandalaSVG(m, true)}<figcaption>${m.toLocaleDateString('nl-NL',{day:'numeric',month:'short'})}</figcaption></figure></button>`; }).join('') : `<p class="leeg" style="grid-column:1/-1">Je eerste wolkjeskrans komt hier na zondag te hangen. ☁️</p>`;
+}
+
+/* ============ render: spaarpot ============ */
+function renderSpaarpot(){
+  const s = saldo();
+  $('#saldo').textContent = s;
+  $('#saldo-sub').textContent = `${verdiend()} verdiend in totaal`;
+  const bel = S.settings.beloningen || [];
+  const volgorde = {klein:0, middel:1, groot:2};
+  $('#beloningen').innerHTML = bel.length ? [...bel].sort((a,b) => volgorde[a.maat]-volgorde[b.maat] || a.kosten-b.kosten).map(b => `
+    <div class="item"><span class="maat" style="background:${MAAT_KLEUR[b.maat]}">${b.maat}</span><span class="naam">${esc(b.naam)}<br><span class="klein">${b.kosten} punten</span></span>
+    <button class="knop mini" data-actie="inwisselen" data-id="${b.id}" ${s < b.kosten ? 'disabled' : ''}>${s < b.kosten ? `nog ${b.kosten - s}` : 'Inwisselen'}</button>
+    <button class="tekstknop" data-actie="beloning-bewerk" data-id="${b.id}" aria-label="Bewerk ${esc(b.naam)}">✏️</button></div>`).join('') : `<p class="leeg">Nog geen beloningen. Wat gun jij jezelf?</p>`;
+  const ingew = (S.settings.ingewisseld||[]).slice(-3).reverse();
+  if(ingew.length) $('#beloningen').insertAdjacentHTML('beforeend', `<p class="klein" style="margin:4px 0 0">Laatst ingewisseld: ${ingew.map(x => `${esc(x.naam)} (${vanKey(x.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'short'})})`).join(', ')}</p>`);
+
+  $('#kast-titel').textContent = `Kastje van ${S.settings.naam || 'Wolkje'}`;
+  const gekocht = S.settings.gekocht || [], aan = S.settings.aan || [];
+  $('#kast').innerHTML = Object.entries(ACC).map(([id, a]) => {
+    const heb = gekocht.includes(id), draagt = aan.includes(id);
+    return `<div class="acc ${draagt ? 'aan' : ''}"><svg viewBox="60 180 1940 1560" data-acc="${id}"></svg><b style="color:var(--navy)">${a.naam}</b>
+      ${heb ? `<button class="knop mini ${draagt ? 'lijn' : ''}" data-actie="draag" data-id="${id}">${draagt ? 'Uitdoen' : 'Aantrekken'}</button>` : `<button class="knop mini" data-actie="koop" data-id="${id}" ${s < a.kosten ? 'disabled' : ''}>${a.kosten} punten</button>`}</div>`;
+  }).join('');
+  document.querySelectorAll('#kast svg[data-acc]').forEach(svg => { svg.id = 'k-' + svg.dataset.acc; tekenWolk(svg, {kleur:'mauve', vul:0, accs:[svg.dataset.acc]}); });
+
+  const st = statistiek();
+  $('#badges').innerHTML = BADGES.map(b => { const n = Math.min(b.doel, b.tel(st)); const ja = n >= b.doel;
+    return `<div class="badge ${ja ? 'ja' : ''}"><div class="medaille" aria-hidden="true">${b.ico}</div><b>${b.naam}</b><span class="klein">${b.uitleg}</span>${ja ? '' : `<div class="balk"><i style="width:${Math.round(100*n/b.doel)}%"></i></div><span class="klein">${n}/${b.doel}</span>`}</div>`; }).join('');
+}
+
+/* ============ render: meer ============ */
+function renderMeer(){
+  const r = S.settings.reisje || {};
+  const rk = $('#reisje-kaart');
+  const nu = reisje(vandaag());
+  rk.innerHTML = `<div class="rij tussen"><h2>Opstaan-reisje</h2><label class="toggle"><span class="klein">aan</span><input type="checkbox" id="rs-aan" ${r.aan ? 'checked' : ''}></label></div>
+    <p style="margin:0">Kies zelf hoe: stapje voor stapje, of in één keer helemaal. Met stapjes begin je meteen een stapje eerder, en elke week komt er een stapje bij, tot je doeltijd.</p>
+    <div class="rij"><label class="veld" style="flex:1" for="rs-van">Wekker nu<input type="time" id="rs-van" value="${r.van||'07:00'}"></label>
+    <label class="veld" style="flex:1" for="rs-doel">Doeltijd<input type="time" id="rs-doel" value="${r.doel||'06:30'}"></label>
+    <label class="veld" style="flex:1.4" for="rs-stap">Hoe?<select id="rs-stap">${[[0,'In één keer'],[5,'5 min per week'],[10,'10 min per week'],[15,'15 min per week']].map(([n,t]) => `<option value="${n}" ${Number(r.stap ?? 10)===n?'selected':''}>${t}</option>`).join('')}</select></label></div>
+    ${nu ? `<div class="melding">Deze week gaat je wekker om <b>${tijdStr(nu.wek)}</b>.${nu.bereikt ? ' Je doeltijd! 🐦' : ''}</div>
+    ${!nu.bereikt ? (nu.pauzeDezeWeek ? `<span class="klein">Deze week blijf je op dezelfde tijd. Prima zo.</span>` : `<button class="knop mini lijn" style="align-self:flex-start" data-actie="pauze">Nog een weekje op deze tijd</button>`) : ''}` : ''}`;
+  rk.querySelectorAll('input,select').forEach(el => el.addEventListener('change', () => {
+    const was = S.settings.reisje || {};
+    S.settings.reisje = {...was, aan:$('#rs-aan').checked, van:$('#rs-van').value, doel:$('#rs-doel').value, stap:Number($('#rs-stap').value), start: (was.aan && was.start) ? was.start : dkey(vandaag()), pauzes: (was.aan ? was.pauzes : []) || []};
+    if(minuten(S.settings.reisje.doel) > minuten(S.settings.reisje.van)) S.settings.reisje.doel = S.settings.reisje.van;
+    Opslag.bewaar('settings'); render();
+  }));
+
+  const id = S.settings.ideeen || [];
+  $('#ideeen').innerHTML = id.length ? id.slice().reverse().map(x => `<div class="item"><span class="naam">${esc(x.tekst)}<br><span class="klein">${vanKey(x.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'short'})}</span></span><button class="tekstknop" data-actie="idee-weg" data-id="${x.id}">weg</button></div>`).join('') : `<p class="leeg">Nog niks geparkeerd. Fijn, een rustig hoofd!</p>`;
+
+  const her = (S.settings.herinneringen || []).slice().sort((a,b) => minuten(a.tijd) - minuten(b.tijd));
+  $('#herinneringen').innerHTML = her.map(h => `<div class="item" style="padding:6px 8px"><input type="time" value="${esc(h.tijd)}" data-her="${h.id}" data-veld="tijd" aria-label="Tijd van ${esc(h.naam)}" style="width:118px;flex:none"><input type="text" value="${esc(h.naam)}" data-her="${h.id}" data-veld="naam" aria-label="Naam herinnering" style="flex:1;min-width:0"><button class="tekstknop" data-actie="her-weg" data-id="${h.id}">weg</button></div>`).join('') || `<p class="leeg">Nog geen herinneringen.</p>`;
+  $('#herinneringen').querySelectorAll('[data-her]').forEach(el => el.addEventListener('change', () => {
+    const h = S.settings.herinneringen.find(x => x.id === el.dataset.her); if(!h) return;
+    const v = el.value.trim(); if(!v) { el.value = h[el.dataset.veld]; return; }
+    h[el.dataset.veld] = v; Opslag.bewaar('settings'); toast('Aangepast! Vergeet je wekker niet ook te verzetten. ⏰');
+    if(el.dataset.veld === 'tijd') render();
+  }));
+
+  $('#inst-naam').textContent = S.settings.naam || 'Wolkje';
+  $('#inst-ankers').textContent = `${S.settings.ankers.length} ankers`;
+  $('#opslag-info').textContent = CLUB ? 'Je voortgang wordt bewaard op dit apparaat. Gebruik Wolkje dus steeds vanaf hetzelfde icoontje op je beginscherm, en maak af en toe een back-up.' : Opslag.modus === 'online' ? 'Je voortgang wordt bewaard in je account, dus je ziet hetzelfde op je telefoon en laptop.' : 'Let op: je voortgang wordt nu alleen op dit apparaat bewaard. Open Wolkje via je Claude-account om hem overal te zien.';
+}
+
+/* ============ algemeen ============ */
+let tab = 'vandaag';
+function render(){
+  if(!S.settings) return;
+  if(tab === 'vandaag') renderVandaag();
+  if(tab === 'week') renderWeek();
+  if(tab === 'spaarpot') renderSpaarpot();
+  if(tab === 'meer') renderMeer();
+}
+function route(){
+  const h = (location.hash || '#vandaag').slice(1);
+  tab = ['vandaag','week','spaarpot','meer'].includes(h) ? h : 'vandaag';
+  document.querySelectorAll('main > section').forEach(s => s.hidden = s.id !== 'v-' + tab);
+  document.querySelectorAll('nav.tabs a').forEach(a => { if(a.dataset.tab === tab) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+  window.scrollTo(0,0); render();
+}
+let toastT;
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('zie'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('zie'), 2200); }
+function openVel(html){ $('#vel').innerHTML = html; $('#scherm').classList.add('open'); const f = $('#vel').querySelector('input,button'); if(f) f.focus(); }
+function sluitVel(){ $('#scherm').classList.remove('open'); }
+$('#scherm').addEventListener('click', e => { if(e.target.id === 'scherm' && !$('#vel').dataset.vast) sluitVel(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && $('#scherm').classList.contains('open') && !$('#vel').dataset.vast) sluitVel(); });
+
+/* ============ dialogen: instellingen ============ */
+function dagenKiezer(sel){ return `<div class="dagen" role="group" aria-label="Dagen">${DAGNAMEN.map((n,i) => `<button type="button" data-dag="${i}" aria-pressed="${sel.includes(i)}">${n}</button>`).join('')}</div>`; }
+let lijstFilter = null, terugNaarLijst = true;
+function naAnker(){ if(terugNaarLijst) ankersLijstVel(lijstFilter); else { sluitVel(); render(); } }
+function ankerVel(a, ddId){
+  const nieuw = !a; a = a || {id:uid(), naam:'', ico:'☁️', pt:10, dagdeel: ddId || lijstFilter || (S.settings.dagdelen.find(d=>d.aan)||S.settings.dagdelen[0]).id, dagen:[0,1,2,3,4,5,6]};
+  $('#vel').dataset.vast = '';
+  openVel(`<h2>${nieuw ? 'Nieuw anker' : 'Anker aanpassen'}</h2>
+    <div class="rij"><label class="veld" style="width:80px" for="a-ico">Icoon<input type="text" id="a-ico" value="${esc(a.ico)}" maxlength="4" style="text-align:center;font-size:22px"></label>
+    <label class="veld" style="flex:1" for="a-naam">Naam<input type="text" id="a-naam" value="${esc(a.naam)}" placeholder="Bijv. Lunch vóór 13:00"></label></div>
+    <div class="rij"><label class="veld" style="flex:1" for="a-dd">Dagdeel<select id="a-dd">${S.settings.dagdelen.map(d => `<option value="${d.id}" ${d.id===a.dagdeel?'selected':''}>${esc(d.naam)}</option>`).join('')}</select></label>
+    <label class="veld" style="width:120px" for="a-tijd">Tijd<input type="time" id="a-tijd" value="${a.tijd||''}"></label>
+    <label class="veld" style="width:90px" for="a-pt">Punten<input type="number" id="a-pt" min="1" max="100" value="${a.pt}"></label></div>
+    <div class="veld" style="font-weight:600;color:var(--navy)">Op welke dagen?${dagenKiezer(a.dagen || [0,1,2,3,4,5,6])}</div>
+    <label class="toggle" for="a-basis"><span>Basisanker<br><span class="klein" style="font-weight:500">Telt ook op een zachte (rode) dag</span></span><input type="checkbox" id="a-basis" ${a.basis?'checked':''}></label>
+    <label class="veld" for="a-soort">Telt mee voor badge<select id="a-soort"><option value="">geen</option>${[['boven','Bankontsnapper (naar boven)'],['douche','Douchekoningin'],['lunch','Lunchheldin'],['bewegen','Beweegwolkje'],['slapen','Nachtwolkje (licht uit)']].map(([v,n]) => `<option value="${v}" ${a.soort===v?'selected':''}>${n}</option>`).join('')}</select></label>
+    <div class="rij tussen"><button class="knop" id="a-ok">Bewaren</button>${nieuw ? '' : `<button class="tekstknop" id="a-weg">Verwijderen</button>`}<button class="tekstknop" id="a-annuleer">Annuleren</button></div>`);
+  $('#a-annuleer').onclick = naAnker;
+  $('#vel').querySelectorAll('.dagen button').forEach(b => b.onclick = () => b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')));
+  $('#a-ok').onclick = () => {
+    const naam = $('#a-naam').value.trim(); if(!naam){ $('#a-naam').focus(); return; }
+    const dagen = [...$('#vel').querySelectorAll('.dagen button[aria-pressed=true]')].map(b => Number(b.dataset.dag));
+    const nw = {...a, naam, ico:$('#a-ico').value.trim() || '☁️', dagdeel:$('#a-dd').value, tijd:$('#a-tijd').value || '', pt:Math.max(1, Math.min(100, Number($('#a-pt').value)||10)), dagen: dagen.length ? dagen : [0,1,2,3,4,5,6], basis:$('#a-basis').checked, soort:$('#a-soort').value || ''};
+    if(nieuw) S.settings.ankers.push(nw); else S.settings.ankers = S.settings.ankers.map(x => x.id === a.id ? nw : x);
+    Opslag.bewaar('settings'); naAnker();
+  };
+  if(!nieuw) $('#a-weg').onclick = () => { S.settings.ankers = S.settings.ankers.filter(x => x.id !== a.id); Opslag.bewaar('settings'); naAnker(); };
+}
+function ankersLijstVel(filter){
+  lijstFilter = filter || null; terugNaarLijst = true;
+  delete $('#vel').dataset.vast;
+  const dd = filter ? S.settings.dagdelen.filter(d => d.id === filter) : S.settings.dagdelen;
+  openVel(`<div class="rij tussen"><h2>${filter ? esc(dd[0].naam) + ' aanpassen' : 'Ankers'}</h2><button class="knop mini" id="a-nieuw">+ Anker</button></div>
+    <p class="klein" style="margin:0">Tik op een anker om hem te veranderen of te verwijderen. Met de pijltjes zet je hem hoger of lager. De ankers die er standaard in staan zijn maar voorbeeldjes.</p>
+    ${dd.map(d => { const l = S.settings.ankers.filter(a => a.dagdeel === d.id); return `<h3 style="display:flex;gap:8px;align-items:center"><span class="streep" style="width:8px;height:18px;border-radius:4px;background:${KLEUR[d.kleur]}"></span>${esc(d.naam)}${d.aan ? '' : ' <span class="klein">(uit)</span>'}</h3>
+      <div class="lijst">${l.map((a,i) => `<div class="item" style="padding:6px 8px 6px 12px"><button data-bewerk="${a.id}" style="all:unset;cursor:pointer;flex:1;display:flex;align-items:center;gap:10px"><span style="font-size:20px">${esc(a.ico)}</span><span class="naam">${esc(a.naam)}${a.basis?'<span class="basis-tag">basis</span>':''}<br><span class="klein">${a.tijd ? a.tijd + ' · ' : ''}${a.pt} punten${a.dagen && a.dagen.length < 7 ? ' · ' + a.dagen.map(i => DAGNAMEN[i]).join(' ') : ''}</span></span></button>
+        <span style="display:flex;flex-direction:column;gap:4px"><button class="schuif" data-schuif="${a.id}" data-r="-1" ${i===0?'disabled':''} aria-label="${esc(a.naam)} omhoog">▲</button><button class="schuif" data-schuif="${a.id}" data-r="1" ${i===l.length-1?'disabled':''} aria-label="${esc(a.naam)} omlaag">▼</button></span></div>`).join('') || '<p class="leeg">Nog leeg</p>'}</div>`; }).join('')}
+    <button class="knop lijn" data-actie="sluit">Klaar</button>`);
+  $('#a-nieuw').onclick = () => ankerVel(null);
+  $('#vel').querySelectorAll('[data-bewerk]').forEach(b => b.onclick = () => ankerVel(S.settings.ankers.find(a => a.id === b.dataset.bewerk)));
+  $('#vel').querySelectorAll('[data-schuif]').forEach(b => b.onclick = () => {
+    const lijst = S.settings.ankers; const i = lijst.findIndex(a => a.id === b.dataset.schuif); const dd = lijst[i].dagdeel; const r = Number(b.dataset.r);
+    let j = i + r; while(j >= 0 && j < lijst.length && lijst[j].dagdeel !== dd) j += r;
+    if(j < 0 || j >= lijst.length) return;
+    [lijst[i], lijst[j]] = [lijst[j], lijst[i]];
+    Opslag.bewaar('settings'); const y = $('#vel').scrollTop; ankersLijstVel(lijstFilter); $('#vel').scrollTop = y;
+    const nb = $('#vel').querySelector(`[data-schuif="${b.dataset.schuif}"][data-r="${r}"]`); if(nb && !nb.disabled) nb.focus();
+  });
+  render();
+}
+function dagdelenVel(){
+  openVel(`<h2>Dagdelen</h2><p class="klein" style="margin:0">Zet aan wat je gebruikt. Ankers van een dagdeel dat uit staat zie je niet.</p>
+    <div class="lijst">${S.settings.dagdelen.map(d => `<div class="item" style="flex-wrap:wrap"><span class="streep" style="width:10px;height:26px;border-radius:5px;background:${KLEUR[d.kleur]}"></span>
+      <input type="text" value="${esc(d.naam)}" data-dd="${d.id}" data-veld="naam" aria-label="Naam dagdeel" style="flex:1;min-width:120px">
+      <input type="time" value="${d.van}" data-dd="${d.id}" data-veld="van" aria-label="Van" style="width:110px"><input type="time" value="${d.tot}" data-dd="${d.id}" data-veld="tot" aria-label="Tot" style="width:110px">
+      <label class="toggle"><span class="klein">aan</span><input type="checkbox" data-dd="${d.id}" data-veld="aan" ${d.aan?'checked':''}></label></div>`).join('')}</div>
+    <form id="dd-nieuw" class="rij"><input type="text" id="dd-naam" placeholder="Eigen dagdeel, bijv. Na schooltijd" aria-label="Nieuw dagdeel"><button class="knop mini" type="submit">+</button></form>
+    <button class="knop lijn" data-actie="sluit">Klaar</button>`);
+  $('#vel').querySelectorAll('[data-dd]').forEach(el => el.addEventListener('change', () => {
+    const d = S.settings.dagdelen.find(x => x.id === el.dataset.dd);
+    d[el.dataset.veld] = el.type === 'checkbox' ? el.checked : el.value;
+    Opslag.bewaar('settings'); render();
+  }));
+  $('#dd-nieuw').onsubmit = e => { e.preventDefault(); const n = $('#dd-naam').value.trim(); if(!n) return;
+    const kleuren = ['roze','mint','goud','mauve']; S.settings.dagdelen.push({id:uid(), naam:n, kleur:kleuren[S.settings.dagdelen.length % 4], van:'15:00', tot:'18:00', aan:true});
+    Opslag.bewaar('settings'); dagdelenVel(); };
+}
+function pakketjesVel(alleenKeuze){
+  const gekozen = new Set();
+  openVel(`<h2>Startpakketje toevoegen</h2><p class="klein" style="margin:0">De ankers komen erbij, en je kunt ze daarna gewoon aanpassen.</p>
+    <div class="keuzes">${Object.entries(PAKKETJES).map(([k,p]) => `<button class="keuze" data-pak="${k}" aria-pressed="false"><span style="font-size:24px">${p.ankers[0].ico}</span><span><b>${p.titel}</b><br><span class="klein">${p.uitleg}</span></span></button>`).join('')}</div>
+    <button class="knop" id="pak-ok">Toevoegen</button><button class="tekstknop" data-actie="sluit">Annuleren</button>`);
+  $('#vel').querySelectorAll('[data-pak]').forEach(b => b.onclick = () => { const k = b.dataset.pak; gekozen.has(k) ? gekozen.delete(k) : gekozen.add(k); b.setAttribute('aria-pressed', String(gekozen.has(k))); });
+  $('#pak-ok').onclick = () => { gekozen.forEach(k => voegPakketToe(k)); Opslag.bewaar('settings'); sluitVel(); toast('Toegevoegd!'); render(); };
+}
+function voegPakketToe(k){
+  const p = PAKKETJES[k];
+  const dd = S.settings.dagdelen.find(d => d.id === p.dagdeel); if(dd) dd.aan = true;
+  p.ankers.forEach(a => S.settings.ankers.push({id:uid(), dagen:[0,1,2,3,4,5,6], tijd:'', basis:false, soort:'', ...a, dagdeel:p.dagdeel}));
+}
+function beloningVel(b){
+  const nieuw = !b; b = b || {id:uid(), naam:'', maat:'klein', kosten:100};
+  openVel(`<h2>${nieuw ? 'Nieuwe beloning' : 'Beloning aanpassen'}</h2>
+    <label class="veld" for="b-naam">Wat gun je jezelf?<input type="text" id="b-naam" value="${esc(b.naam)}" placeholder="Bijv. Een bloemetje voor mezelf"></label>
+    <div class="rij"><label class="veld" style="flex:1" for="b-maat">Maat<select id="b-maat">${['klein','middel','groot'].map(m => `<option ${m===b.maat?'selected':''}>${m}</option>`).join('')}</select></label>
+    <label class="veld" style="flex:1" for="b-kosten">Punten<input type="number" id="b-kosten" min="10" step="10" value="${b.kosten}"></label></div>
+    <p class="klein" style="margin:0">Ter indruk: een fijne dag levert zo'n 100 tot 150 punten op.</p>
+    <div class="rij tussen"><button class="knop" id="b-ok">Bewaren</button>${nieuw ? '' : '<button class="tekstknop" id="b-weg">Verwijderen</button>'}<button class="tekstknop" data-actie="sluit">Annuleren</button></div>`);
+  $('#b-maat').onchange = () => { const m = $('#b-maat').value; if(nieuw) $('#b-kosten').value = {klein:100, middel:300, groot:800}[m]; };
+  $('#b-ok').onclick = () => { const naam = $('#b-naam').value.trim(); if(!naam) return $('#b-naam').focus();
+    const nw = {...b, naam, maat:$('#b-maat').value, kosten:Math.max(10, Number($('#b-kosten').value)||100)};
+    S.settings.beloningen = nieuw ? [...(S.settings.beloningen||[]), nw] : S.settings.beloningen.map(x => x.id === b.id ? nw : x);
+    Opslag.bewaar('settings'); sluitVel(); render(); };
+  if(!nieuw) $('#b-weg').onclick = () => { S.settings.beloningen = S.settings.beloningen.filter(x => x.id !== b.id); Opslag.bewaar('settings'); sluitVel(); render(); };
+}
+function hoofdstukVel(){
+  const h = S.settings.hoofdstuk || {};
+  openVel(`<h2>Jouw hoofdstuk</h2><p style="margin:0">Eén groter doel voor de komende 4 weken. Klein genoeg om te geloven, groot genoeg om verschil te maken.</p>
+    <label class="veld" for="h-doel">Mijn doel<input type="text" id="h-doel" value="${esc(h.doel||'')}" placeholder="Ik sta weer op na mijn werk"></label>
+    <button class="knop" id="h-ok">Beginnen</button><button class="tekstknop" data-actie="sluit">Annuleren</button>`);
+  $('#h-ok').onclick = () => { const d = $('#h-doel').value.trim(); if(!d) return $('#h-doel').focus();
+    const zelfde = h.doel && h.start && Math.floor((vandaag() - vanKey(h.start))/864e5) < 28;
+    S.settings.hoofdstuk = {doel:d, start: zelfde ? h.start : dkey(vandaag())};
+    Opslag.bewaar('settings'); sluitVel(); render(); };
+}
+function naamVel(){
+  openVel(`<h2>Naam van je wolkje</h2><label class="veld" for="n-naam">Naam<input type="text" id="n-naam" value="${esc(S.settings.naam||'Wolkje')}" maxlength="20"></label><button class="knop" id="n-ok">Bewaren</button>`);
+  $('#n-ok').onclick = () => { S.settings.naam = $('#n-naam').value.trim() || 'Wolkje'; Opslag.bewaar('settings'); sluitVel(); render(); };
+}
+
+/* ============ welkomstgesprekje ============ */
+function welkom(){
+  const w = {naam:'', pakket:new Set(['ochtend','overdag','avond']), reisje:{aan:true, van:'07:00', doel:'06:30', stap:10}, doel:''};
+  let stap = 0;
+  $('#vel').dataset.vast = '1';
+  const stippen = () => `<div class="stippen">${[0,1,2,3].map(i => `<i class="${i<=stap?'aan':''}"></i>`).join('')}</div>`;
+  const toon = () => {
+    if(stap === 0){
+      openVel(`${stippen()}<svg viewBox="60 180 1940 1560" id="welkom-wolk" style="width:200px;align-self:center"></svg>
+        <h2 style="text-align:center">Hoi! Ik word jouw maatje.</h2>
+        <p style="margin:0;text-align:center">Ik help je elke dag een beetje beter voor jezelf te zorgen. Zonder moeten, met heel veel vinkjes. Hoe zal ik heten?</p>
+        <label class="veld" for="w-naam">Naam van je wolkje<input type="text" id="w-naam" value="${esc(w.naam)}" placeholder="Wolkje" maxlength="20"></label>
+        <button class="knop" id="w-ok">Verder</button>`);
+      tekenWolk($('#welkom-wolk'), {kleur:'goud', vul:.35});
+      $('#w-ok').onclick = () => { w.naam = $('#w-naam').value.trim() || 'Wolkje'; stap = 1; toon(); };
+    } else if(stap === 1){
+      openVel(`${stippen()}<h2>Waar wil jij meer rust in?</h2><p class="klein" style="margin:0">Kies één of meer startpakketjes als voorbeeld. Je kunt elk anker daarna veranderen, weghalen of zelf toevoegen. Niks kiezen mag ook, dan begin je met een lege lijst.</p>
+        <div class="keuzes">${Object.entries(PAKKETJES).map(([k,p]) => `<button class="keuze" data-pak="${k}" aria-pressed="${w.pakket.has(k)}"><span style="font-size:24px">${p.ankers[0].ico}</span><span><b>${p.titel}</b><br><span class="klein">${p.uitleg}</span></span></button>`).join('')}</div>
+        <button class="knop" id="w-ok">Verder</button><button class="tekstknop" id="w-terug">Terug</button>`);
+      $('#vel').querySelectorAll('[data-pak]').forEach(b => b.onclick = () => { const k = b.dataset.pak; w.pakket.has(k) ? w.pakket.delete(k) : w.pakket.add(k); b.setAttribute('aria-pressed', String(w.pakket.has(k))); });
+      $('#w-ok').onclick = () => { stap = 2; toon(); }; $('#w-terug').onclick = () => { stap = 0; toon(); };
+    } else if(stap === 2){
+      openVel(`${stippen()}<h2>Wil je eerder opstaan?</h2><p style="margin:0">Dan maken we er een reisje van. Met stapjes begin je meteen een stapje eerder, en elke week komt er een stapje bij. Of je gaat in één keer helemaal, ook prima. Een week langer op dezelfde tijd mag altijd.</p>
+        <label class="toggle" for="w-rs"><span>Ja, opstaan-reisje aan</span><input type="checkbox" id="w-rs" ${w.reisje.aan?'checked':''}></label>
+        <div class="rij"><label class="veld" style="flex:1" for="w-van">Wekker nu<input type="time" id="w-van" value="${w.reisje.van}"></label>
+        <label class="veld" style="flex:1" for="w-doel">Doeltijd<input type="time" id="w-doel" value="${w.reisje.doel}"></label>
+        <label class="veld" style="flex:1.4" for="w-stap">Hoe?<select id="w-stap">${[[0,'In één keer'],[5,'5 min per week'],[10,'10 min per week'],[15,'15 min per week']].map(([n,t]) => `<option value="${n}" ${n===w.reisje.stap?'selected':''}>${t}</option>`).join('')}</select></label></div>
+        <button class="knop" id="w-ok">Verder</button><button class="tekstknop" id="w-terug">Terug</button>`);
+      $('#w-ok').onclick = () => { w.reisje = {aan:$('#w-rs').checked, van:$('#w-van').value, doel:$('#w-doel').value, stap:Number($('#w-stap').value)}; stap = 3; toon(); };
+      $('#w-terug').onclick = () => { stap = 1; toon(); };
+    } else {
+      openVel(`${stippen()}<h2>Jouw eerste hoofdstuk</h2><p style="margin:0">Wat wil je de komende 4 weken echt anders doen? Eén zin is genoeg. Mag ook leeg, dan kies je later.</p>
+        <label class="veld" for="w-doel2">Mijn doel<input type="text" id="w-doel2" value="${esc(w.doel)}" placeholder="Ik sta weer op na mijn werk"></label>
+        <div class="melding">Beloningen en herinneringen vind je bij <b>Meer</b>. Vergeten hoe iets werkt? Tik rechtsboven op het <b>i</b>-knopje. En op een moeilijke dag tik je je energie op rood, dan tellen alleen je basisankers.</div>
+        <button class="knop" id="w-ok">Aan de slag! ☁️</button><button class="tekstknop" id="w-terug">Terug</button>`);
+      $('#w-ok').onclick = () => { w.doel = $('#w-doel2').value.trim(); klaarMetWelkom(w); };
+      $('#w-terug').onclick = () => { stap = 2; toon(); };
+    }
+  };
+  toon();
+}
+function klaarMetWelkom(w){
+  S.settings = {versie:1, naam:w.naam, dagdelen:JSON.parse(JSON.stringify(STANDAARD_DAGDELEN)), ankers:[], beloningen:STANDAARD_BELONINGEN.map(b => ({...b, id:uid()})), ingewisseld:[], gekocht:[], cadeauAcc:[], aan:[], ideeen:[],
+    herinneringen:[{id:uid(), tijd:'07:00', naam:'Wolkjesochtend'},{id:uid(), tijd:'12:30', naam:'Tijd voor je lunch'},{id:uid(), tijd:'20:45', naam:'Bijna naar boven'}],
+    reisje: w.reisje.aan ? {...w.reisje, start:dkey(vandaag()), pauzes:[]} : {...w.reisje, aan:false},
+    hoofdstuk: w.doel ? {doel:w.doel, start:dkey(vandaag())} : null};
+  S.settings.dagdelen.forEach(d => d.aan = false);
+  w.pakket.forEach(k => voegPakketToe(k));
+  if(!w.pakket.size) S.settings.dagdelen.forEach(d => d.aan = true);
+  if(minuten(S.settings.reisje.doel) > minuten(S.settings.reisje.van)) S.settings.reisje.doel = S.settings.reisje.van;
+  Opslag.bewaar('settings');
+  delete $('#vel').dataset.vast; sluitVel(); route();
+  setTimeout(() => toast(`Hoi! Ik ben ${S.settings.naam}. Tik eerst je energie aan.`), 400);
+}
+
+
+/* ============ uitleg (i-knopje) ============ */
+const UITLEG = [
+ ['☁️','__WIE__', `<p>__NAAM__ is je maatje dat je helpt elke dag een beetje beter voor jezelf te zorgen. Je vinkt kleine dingen af, verdient punten en spaart voor beloningen. Zonder moeten, met heel veel vinkjes.</p><p>Je wolkje kleurt mee met je dag: geel in de ochtend, mint overdag, lila in de avond en donkerblauw met slaapmutsje in de nacht. Op een zachte dag wordt hij roze. Hoe meer je afvinkt, hoe voller hij wordt.</p>`],
+ ['🕐','Dagdelen', `<p>Je dag is verdeeld in stukjes: standaard ochtend, overdag en avond, elk met een eigen kleur en tijd.</p><ul><li>Gebruik je er eentje niet? Zet hem uit, dan zie je die ankers niet meer.</li><li>Je kunt ook een eigen dagdeel maken, bijvoorbeeld "Na schooltijd".</li><li>Dit regel je onderaan het Vandaag-scherm, of bij Meer, Instellingen, Dagdelen.</li></ul>`],
+ ['⚓','Ankers', `<p>Ankers zijn de kleine dingen die je elke dag voor jezelf wilt doen, zoals douchen, lunchen of op tijd naar boven. Tik erop om af te vinken, nog een keer tikken haalt het vinkje weer weg.</p><ul><li><b>Aanpassen:</b> tik bij een dagdeel op ✏️ Aanpassen. Daar verander je de naam, het icoontje, de tijd, de punten en op welke dagen hij er staat.</li><li><b>Volgorde:</b> met de pijltjes ▲▼ zet je een anker hoger of lager.</li><li><b>Toevoegen:</b> onder elk dagdeel staat + Anker toevoegen.</li><li><b>Basisanker:</b> een anker met het roze labeltje "basis" telt ook op een zachte dag. Meer daarover bij "Je energie en zachte dagen".</li></ul>`],
+ ['🎁','Startpakketjes', `<p>Kant-en-klare setjes ankers om mee te beginnen, zodat je niet bij een lege lijst start: Wolkjesochtend, Goed voor jezelf overdag en Avond zonder bank.</p><p>Het zijn maar voorbeeldjes. Haal weg wat niet bij je past en voeg toe wat wel past. Een pakketje erbij zetten kan altijd via Meer, Instellingen.</p>`],
+ ['💚','Je energie en zachte dagen', `<p>Tik elke ochtend even aan hoe je je voelt: groen, oranje of rood.</p><ul><li><b>Groen:</b> je voelt je top. Je dag is geslaagd als je AL je ankers hebt gedaan.</li><li><b>Oranje:</b> het gaat wel. Je dag is geslaagd als je de helft van je ankers hebt gedaan.</li><li><b>Rood:</b> een zachte dag. Dan tellen alleen je basisankers, en is dat MEER dan genoeg. Je wolkje wordt roze en extra lief.</li></ul><p>Geslaagde dagen achter elkaar vormen je reeks, die je bovenaan ziet bij "dagen op rij".</p>`],
+ ['⭐','Punten en verrassingen', `<p>Elk anker levert punten op, het getal achter het anker. Alles afgevinkt? Dan krijg je 20 bonuspunten voor een vol wolkje.</p><p>Soms springt er bij het afvinken zomaar een cadeautje open: bonuspunten, een lief briefje of een gratis accessoire. Hooguit één keer per dag.</p>`],
+ ['🐷','Spaarpot en beloningen', `<p>Je punten sparen zich op in je spaarpot. Daar staan je beloningen in drie maten: klein, middel en groot.</p><ul><li>Heb je genoeg punten? Tik op Inwisselen. Die punten gaan dan van je spaarpot af.</li><li>Met + Beloning voeg je een eigen beloning toe. Met het potloodje verander of verwijder je er een.</li><li>Tip: plan meteen wanneer je je beloning doet, anders schuift hij op.</li></ul>`],
+ ['🎀','Het kastje van je wolkje', `<p>Hier koop je accessoires voor je wolkje met je punten, zoals een strikje, zonnebril of kroontje.</p><ul><li>Wat je koopt blijft voor altijd van jou.</li><li>Uitdoen en weer aantrekken is gratis.</li><li>Je punten krijg je bij uitdoen niet terug.</li><li>Je wolkje draagt één ding op zijn hoofd, één op zijn gezicht en één om zijn nek tegelijk.</li></ul>`],
+ ['🏅','Badges', `<p>Badges zijn grappige mijlpalen, zoals Bankontsnapper (5x op tijd naar boven) of Lunchheldin. Bij elke badge zie je hoe ver je al bent.</p><p>Wil je dat een eigen anker meetelt voor een badge? Kies dat bij het aanpassen van het anker, onder "Telt mee voor badge".</p>`],
+ ['☁️','Jouw wolkjeskrans', `<p>Bij Week zie je een kring van 7 wolkjes, één voor elke dag van maandag tot en met zondag. Elk wolkje loopt vol met wat je die dag hebt afgevinkt. Helemaal vol? Dan lacht hij en krijgt hij sterretjes.</p><p>Het grote wolkje in het midden groeit met je hele week mee. Op maandag begin je met een nieuwe krans, en de oude gaat naar je galerij.</p>`],
+ ['📖','Je hoofdstuk', `<p>Eén groter doel voor 4 weken, bijvoorbeeld "Ik sta weer op na mijn werk". Het begint altijd op een maandag. Je ziet bij Week in welke week je zit.</p><p>Na 4 weken kies je: een nieuw hoofdstuk, nog 4 weken door, of even niks.</p>`],
+ ['📝','Weekterugblik', `<p>Bij Week zie je hoeveel geslaagde dagen je had en wat je het vaakst deed. Je schrijft er kort bij wat goed ging en wat je jezelf volgende week gunt. Fijn om op zondag even te doen.</p>`],
+ ['⏰','Opstaan-reisje', `<p>Wil je eerder opstaan? Vul bij Meer in hoe laat je wekker nu gaat en wat je doeltijd is. Kies daarna hoe je het wilt doen:</p><ul><li><b>In één keer:</b> je wekker gaat meteen op je doeltijd.</li><li><b>Met stapjes:</b> je begint meteen een stapje eerder, en elke week komt er een stapje bij.</li></ul><p>Lukt een stapje nog niet? Tik op "Nog een weekje op deze tijd". Je wolkje zet het anker "Opgestaan om..." automatisch in je ochtend.</p>`],
+ ['🅿️','Ideeën-parkeerplaats', `<p>Schiet er tussendoor iets door je hoofd, een idee of iets waar je aan moet denken? Parkeer het hier. Dan is het veilig bewaard en hoef je het niet meteen te doen of te onthouden.</p><p>Je vindt alles terug bij Meer. Klaar ermee? Tik op "weg".</p>`],
+ ['🔔','Herinneringen', `<p>Wolkje kan je telefoon niet zelf laten piepen. Daarom staan bij Meer je herinneringstijden. Zet die als wekker in je telefoon, met als naam bijvoorbeeld "Wolkje: tijd voor je avond".</p><p>Tik op een tijd of naam om hem te veranderen. Vergeet dan niet ook de wekker op je telefoon te verzetten.</p>`],
+ ['💾','Waar wordt alles bewaard?', CLUB ? `<p>Je voortgang wordt bewaard op je eigen telefoon. Niemand anders kan erbij, ook Okido niet.</p><ul><li>Open Wolkje altijd via het icoontje op je beginscherm. Op een iPhone is dat namelijk een ander "kastje" dan Safari.</li><li>Nieuwe telefoon? Ga naar Meer, Back-up. Maak een back-up op je oude telefoon en zet hem terug op je nieuwe.</li></ul>` : `<p>Je voortgang wordt bewaard in je eigen Claude-account. Je ziet dus hetzelfde op je telefoon en je laptop, en alleen jij kunt erbij.</p><p>Wil je verder in een andere versie van Wolkje? Maak bij Meer een back-up en zet hem daar terug.</p>`],
+];
+function uitlegVel(){
+  delete $('#vel').dataset.vast;
+  const nm = esc(S.settings?.naam || 'Wolkje');
+  openVel(`<div class="rij tussen"><h2>Hoe werkt ${nm}?</h2><button class="tekstknop" data-actie="sluit">Sluiten</button></div>
+    <p class="klein" style="margin:0">Tik op een onderwerp om het open te klappen.</p>
+    <div class="uitleg keuzes">${UITLEG.map(([ico,t,h]) => `<details><summary><span aria-hidden="true">${ico}</span>${t.replace('__WIE__', 'Wie is ' + nm + '?')}</summary>${h.replace('__NAAM__', nm)}</details>`).join('')}</div>
+    <button class="knop lijn" data-actie="sluit">Duidelijk!</button>`);
+}
+$('#info-knop').onclick = uitlegVel;
+
+
+/* ============ back-up ============ */
+function backupTekst(){
+  const alles = {app:'wolkje', versie:1, gemaakt:new Date().toISOString(), docs:{settings:S.settings}};
+  Object.entries(S.days).forEach(([k,v]) => alles.docs['d-' + k] = v);
+  Object.entries(S.weeks).forEach(([k,v]) => alles.docs[k] = v);
+  const bytes = new TextEncoder().encode(JSON.stringify(alles));
+  let bin = ''; bytes.forEach(b => bin += String.fromCharCode(b));
+  return 'WOLKJE1:' + btoa(bin);
+}
+function leesBackup(t){
+  t = (t || '').trim();
+  if(t.startsWith('WOLKJE1:')) t = t.slice(8);
+  const bin = atob(t.replace(/\s+/g, ''));
+  const json = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))));
+  if(json.app !== 'wolkje' || !json.docs || !json.docs.settings) throw new Error('geen wolkje');
+  return json;
+}
+function backupMaakVel(){
+  const t = backupTekst();
+  openVel(`<h2>Je back-up</h2>
+    <p style="margin:0">Hieronder staat je back-up als een lange code. Kopieer hem en bewaar hem op een veilige plek, bijvoorbeeld in je notities of in een mailtje aan jezelf.</p>
+    <textarea id="bk-tekst" rows="5" readonly style="font-size:12px;word-break:break-all">${t}</textarea>
+    <div class="rij" style="flex-wrap:wrap"><button class="knop" id="bk-kopieer">Kopieer</button>${CLUB ? '<button class="knop lijn" id="bk-bestand">Bewaar als bestand</button>' : ''}</div>
+    <button class="tekstknop" data-actie="sluit">Klaar</button>`);
+  $('#bk-kopieer').onclick = async () => {
+    try{ await navigator.clipboard.writeText(t); toast('Gekopieerd! Plak hem ergens veilig. 💾'); }
+    catch(e){ const ta = $('#bk-tekst'); ta.focus(); ta.select(); toast('Selecteer de tekst en kopieer hem zelf.'); }
+  };
+  if(CLUB) $('#bk-bestand').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([t], {type:'text/plain'}));
+    a.download = `wolkje-backup_${dkey(vandaag())}.txt`; document.body.appendChild(a); a.click(); a.remove();
+  };
+}
+function backupTerugVel(){
+  openVel(`<h2>Back-up terugzetten</h2>
+    <p style="margin:0">Plak hier je back-up-code${CLUB ? ', of kies het back-upbestand' : ''}. Let op: wat er nu in Wolkje staat, wordt vervangen door je back-up.</p>
+    <textarea id="bk-in" rows="5" placeholder="WOLKJE1:..." style="font-size:12px"></textarea>
+    ${CLUB ? '<input type="file" id="bk-file" accept=".txt,text/plain" aria-label="Kies back-upbestand">' : ''}
+    <div id="bk-fout" class="melding" hidden></div>
+    <button class="knop" id="bk-ok">Terugzetten</button><button class="tekstknop" data-actie="sluit">Annuleren</button>`);
+  if(CLUB) $('#bk-file').onchange = async e => { const f = e.target.files[0]; if(f) $('#bk-in').value = await f.text(); };
+  $('#bk-ok').onclick = () => {
+    let json;
+    try{ json = leesBackup($('#bk-in').value); }
+    catch(e){ const f = $('#bk-fout'); f.hidden = false; f.textContent = 'Deze code herken ik niet als een Wolkje-back-up. Kopieer hem nog een keer helemaal, van begin tot eind.'; return; }
+    S.settings = json.docs.settings; S.days = {}; S.weeks = {};
+    Object.entries(json.docs).forEach(([k,v]) => { if(k.startsWith('d-')) S.days[k.slice(2)] = v; else if(k.startsWith('w-')) S.weeks[k] = v; });
+    Object.keys(json.docs).forEach(k => Opslag.bewaar(k)); Opslag.flush();
+    sluitVel(); toast(`Welkom terug! ${S.settings.naam || 'Wolkje'} is weer helemaal compleet. ☁️`); location.hash = '#vandaag'; route();
+  };
+}
+
+/* ============ klikken ============ */
+document.addEventListener('click', e => {
+  const anker = e.target.closest('[data-anker]'); if(anker){ vinkAan(anker.dataset.anker); return; }
+  const en = e.target.closest('.energie button');
+  if(en){ const d = dag(dkey(vandaag())); d.energie = d.energie === en.dataset.e ? null : en.dataset.e; Opslag.bewaar('d-' + dkey(vandaag()));
+    if(d.energie === 'rood') toast('Zachte dag. Alleen je basisankers tellen vandaag. 💗'); render(); return; }
+  const open = e.target.closest('[data-open]');
+  if(open){ ({naam:naamVel, dagdelen:dagdelenVel, ankers:ankersLijstVel, pakketjes:pakketjesVel})[open.dataset.open](); return; }
+  const el = e.target.closest('[data-actie]'); if(!el) return;
+  const a = el.dataset.actie, id = el.dataset.id;
+  if(a === 'sluit'){ delete $('#vel').dataset.vast; sluitVel(); render(); }
+  if(a === 'koop'){ const acc = ACC[id]; if(saldo() < acc.kosten) return;
+    openVel(`<div class="cadeau"><svg viewBox="60 180 1940 1560" id="koop-wolk" style="width:200px"></svg><h2>${esc(acc.naam)} kopen?</h2><p style="margin:0">Dat kost ${acc.kosten} punten. Je houdt er ${saldo()-acc.kosten} over.</p><button class="knop" data-actie="koop-ja" data-id="${id}">Ja, gezellig!</button><button class="tekstknop" data-actie="sluit">Nog even niet</button></div>`);
+    tekenWolk($('#koop-wolk'), {kleur:'goud', vul:.5, accs:[id]}); }
+  if(a === 'koop-ja'){ S.settings.gekocht = [...new Set([...(S.settings.gekocht||[]), id])]; S.settings.aan = (S.settings.aan||[]).filter(x => ACC[x]?.plek !== ACC[id].plek).concat(id); Opslag.bewaar('settings'); sluitVel(); toast(`${ACC[id].naam} staat je geweldig! ✨`); render(); }
+  if(a === 'draag'){ const aan = S.settings.aan || []; S.settings.aan = aan.includes(id) ? aan.filter(x => x !== id) : aan.filter(x => ACC[x]?.plek !== ACC[id].plek).concat(id); Opslag.bewaar('settings'); if($('#scherm').classList.contains('open')){ sluitVel(); Opslag.bewaar('d-' + dkey(vandaag())); } render(); }
+  if(a === 'inwisselen'){ const b = S.settings.beloningen.find(x => x.id === id); if(!b || saldo() < b.kosten) return;
+    openVel(`<div class="cadeau"><div class="doos">🎉</div><h2>${esc(b.naam)}</h2><p style="margin:0">Inwisselen voor ${b.kosten} punten? Spreek ook meteen af wanneer je het doet, anders schuift het weer op.</p><button class="knop" data-actie="inwissel-ja" data-id="${id}">Ja, ik gun het mezelf</button><button class="tekstknop" data-actie="sluit">Nog even sparen</button></div>`); }
+  if(a === 'inwissel-ja'){ const b = S.settings.beloningen.find(x => x.id === id); S.settings.ingewisseld = [...(S.settings.ingewisseld||[]), {naam:b.naam, kosten:b.kosten, datum:dkey(vandaag())}]; Opslag.bewaar('settings'); sluitVel(); toast('Geniet ervan! Je hebt het verdiend. 💛'); render(); }
+  if(a === 'beloning-bewerk') beloningVel(S.settings.beloningen.find(x => x.id === id));
+  if(a === 'oude-week'){
+    const m = vanKey(id); const zo = plusDagen(m, 6); const [, wn] = weekNr(m);
+    let geslaagd = 0, punten = 0;
+    for(let i = 0; i < 7; i++){ const k = dkey(plusDagen(m, i)); if(S.days[k]){ if(dagStatus(k).geslaagd) geslaagd++; punten += dagPunten(S.days[k]); } }
+    const w = S.weeks[weekKey(m)] || {};
+    const fmt = d => d.toLocaleDateString('nl-NL', {day:'numeric', month:'long'});
+    openVel(`<div class="rij tussen"><h2>Week ${wn}</h2><button class="tekstknop" data-actie="sluit">Sluiten</button></div>
+      <p class="klein" style="margin:0">${fmt(m)} t/m ${fmt(zo)}</p>
+      ${mandalaSVG(m, false)}
+      <div class="voortgang"><div class="stat"><b>${geslaagd}/7</b><span>geslaagde dagen</span></div><div class="stat"><b>${punten}</b><span>punten</span></div></div>
+      ${w.goed ? `<div class="melding"><b>Wat ging goed:</b> ${esc(w.goed)}</div>` : ''}
+      ${w.gun ? `<div class="melding"><b>Wat ik mezelf gunde:</b> ${esc(w.gun)}</div>` : ''}`);
+  }
+  if(a === 'hoofdstuk-nieuw') hoofdstukVel();
+  if(a === 'backup-maak') backupMaakVel();
+  if(a === 'backup-terug') backupTerugVel();
+  if(a === 'dd-bewerk') ankersLijstVel(id);
+  if(a === 'anker-nieuw'){ lijstFilter = id; terugNaarLijst = false; ankerVel(null, id); }
+  if(a === 'hoofdstuk-door'){ S.settings.hoofdstuk = {...S.settings.hoofdstuk, start:dkey(vandaag())}; Opslag.bewaar('settings'); render(); }
+  if(a === 'pauze'){ const r = reisje(vandaag()); S.settings.reisje.pauzes = [...(S.settings.reisje.pauzes||[]), r.week]; Opslag.bewaar('settings'); toast('Prima! Nog een weekje op deze tijd.'); render(); }
+  if(a === 'idee-weg'){ S.settings.ideeen = S.settings.ideeen.filter(x => x.id !== id); Opslag.bewaar('settings'); render(); }
+  if(a === 'her-weg'){ S.settings.herinneringen = S.settings.herinneringen.filter(x => x.id !== id); Opslag.bewaar('settings'); render(); }
+});
+$('#beloning-nieuw').onclick = () => beloningVel(null);
+function parkeer(input){ const t = input.value.trim(); if(!t) return; S.settings.ideeen = [...(S.settings.ideeen||[]), {id:uid(), tekst:t, datum:dkey(vandaag())}]; input.value = ''; Opslag.bewaar('settings'); toast('Geparkeerd! Je hoofd is weer een beetje leger. 🅿️'); render(); }
+$('#idee-snel').onsubmit = e => { e.preventDefault(); parkeer($('#idee-snel-in')); };
+$('#idee-form').onsubmit = e => { e.preventDefault(); parkeer($('#idee-in')); };
+$('#herinnering-form').onsubmit = e => { e.preventDefault(); const t = $('#her-tijd').value, n = $('#her-naam').value.trim(); if(!t || !n) return;
+  S.settings.herinneringen = [...(S.settings.herinneringen||[]), {id:uid(), tijd:t, naam:n}]; $('#her-naam').value = ''; Opslag.bewaar('settings'); render(); };
+['#tb-goed','#tb-planner'].forEach(sel => $(sel).addEventListener('input', () => {
+  const wk = weekKey(vandaag()); S.weeks[wk] = {...(S.weeks[wk]||{}), goed:$('#tb-goed').value, gun:$('#tb-planner').value}; Opslag.bewaar(wk); }));
+window.addEventListener('hashchange', route);
+document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden') Opslag.flush(); });
+window.addEventListener('pagehide', () => Opslag.flush());
+let laatsteDag = dkey(vandaag());
+setInterval(() => { if(!S.settings) return; const k = dkey(vandaag()); if(k !== laatsteDag || tab === 'vandaag'){ laatsteDag = k; if(!$('#scherm').classList.contains('open')) render(); } }, 60000);
+
+/* ============ start ============ */
+(async function(){
+  // eerste beeld: een rustig wolkje terwijl we laden
+  S.settings = null;
+  tekenWolk($('#wolk'), {kleur:'goud', vul:.2});
+  $('#wolk .lichaam').classList.add('zweef');
+  if(CLUB && !codeOk()){ toonSlot(); return; }
+  await Opslag.start();
+  if(!S.settings) welkom(); else route();
+})();
+function normCode(c){ return String(c || '').toLowerCase().replace(/\s+/g, ''); }
+function codeOk(){
+  const lijst = (window.VIPCODES || []).map(normCode);
+  let bewaard = ''; try{ bewaard = localStorage.getItem('wolkje-code') || ''; }catch(e){}
+  return lijst.length > 0 && lijst.includes(normCode(bewaard));
+}
+function toonSlot(){
+  document.querySelector('nav.tabs').hidden = true; $('#info-knop').hidden = true;
+  document.querySelectorAll('main > section').forEach(x => x.hidden = true);
+  const div = document.createElement('div'); div.className = 'slot'; div.id = 'slot';
+  div.innerHTML = `<svg viewBox="60 180 1940 1560" id="slot-wolk" style="width:200px"></svg>
+    <h1 style="font-size:26px">Hoi! Fijn dat je er bent ☁️</h1>
+    <p style="margin:0">Wolkje is jouw maatje voor elke dag, speciaal voor VIP-leden van de Okido Journal Club. Vul het VIP-codewoord van deze maand in. Je vindt het in Huddle bij <b>VIP tools</b>.</p>
+    <form id="slot-form" style="display:flex;flex-direction:column;gap:10px;width:100%">
+      <input type="text" id="slot-code" placeholder="VIP-codewoord" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="VIP-codewoord" style="text-align:center;font-size:18px">
+      <button class="knop" type="submit">Naar binnen</button>
+    </form>
+    <div class="melding" id="slot-fout" hidden></div>
+    <p class="klein" style="margin:0">Tip: zet Wolkje eerst op je beginscherm en open hem vanaf daar. Dan blijven al je vinkjes netjes bewaard.</p>`;
+  document.body.prepend(div);
+  tekenWolk($('#slot-wolk'), {kleur:'goud', vul:.35});
+  $('#slot-wolk .lichaam').classList.add('zweef');
+  $('#slot-form').onsubmit = async e => {
+    e.preventDefault();
+    const c = $('#slot-code').value;
+    if(!(window.VIPCODES || []).map(normCode).includes(normCode(c))){
+      const f = $('#slot-fout'); f.hidden = false;
+      f.textContent = normCode(c) ? 'Hmm, dat codewoord klopt nog niet. Kijk even in Huddle bij VIP tools, misschien is er een nieuw woord van deze maand.' : 'Vul eerst het codewoord in.';
+      return;
+    }
+    try{ localStorage.setItem('wolkje-code', c); }catch(e){}
+    div.remove(); document.querySelector('nav.tabs').hidden = false; $('#info-knop').hidden = false;
+    await Opslag.start();
+    if(!S.settings) welkom(); else route();
+  };
+}
+</script>
+</body>
+</html>
