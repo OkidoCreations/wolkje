@@ -1038,7 +1038,9 @@ function backupTekst(){
 }
 function leesBackup(t){
   t = (t || '').trim();
-  if(t.startsWith('WOLKJE1:')) t = t.slice(8);
+  const m = t.match(/WOLKJE1:\s*([A-Za-z0-9+\/=\s]+)/);
+  if(m) t = m[1];
+  else if(!/^[A-Za-z0-9+\/=\s]{100,}$/.test(t)) throw new Error('geen code');
   const bin = atob(t.replace(/\s+/g, ''));
   const json = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))));
   if(json.app !== 'wolkje' || !json.docs || !json.docs.settings) throw new Error('geen wolkje');
@@ -1049,11 +1051,19 @@ function backupMaakVel(){
   openVel(`<h2>Je back-up</h2>
     <p style="margin:0">Hieronder staat je back-up als een lange code. Kopieer hem en bewaar hem op een veilige plek, bijvoorbeeld in je notities of in een mailtje aan jezelf.</p>
     <textarea id="bk-tekst" rows="5" readonly style="font-size:12px;word-break:break-all">${t}</textarea>
+    <div class="melding" id="bk-hint" hidden>Kopiëren lukt hier niet automatisch. Houd je vinger op de code, kies <b>Selecteer alles</b> en daarna <b>Kopieer</b>.</div>
     <div class="rij" style="flex-wrap:wrap"><button class="knop" id="bk-kopieer">Kopieer</button>${CLUB ? '<button class="knop lijn" id="bk-bestand">Bewaar als bestand</button>' : ''}</div>
+    ${CLUB ? '' : `<div class="melding"><b>Verhuizen naar je club-Wolkje?</b> Tik hieronder. De back-up opent dan in je browser, waar je hem met één tik kopieert.</div><a class="knop lijn" href="https://okidocreations.github.io/wolkje/#herstel-${encodeURIComponent(t.slice(8))}" target="_blank" rel="noopener" style="text-decoration:none">Open in club-Wolkje</a>`}
     <button class="tekstknop" data-actie="sluit">Klaar</button>`);
   $('#bk-kopieer').onclick = async () => {
-    try{ await navigator.clipboard.writeText(t); toast('Gekopieerd! Plak hem ergens veilig. 💾'); }
-    catch(e){ const ta = $('#bk-tekst'); ta.focus(); ta.select(); toast('Selecteer de tekst en kopieer hem zelf.'); }
+    const ta = $('#bk-tekst');
+    let gelukt = false;
+    ta.removeAttribute('readonly'); ta.focus(); ta.select(); ta.setSelectionRange(0, t.length);
+    try{ gelukt = document.execCommand('copy'); }catch(e){}
+    try{ await navigator.clipboard.writeText(t); gelukt = true; }catch(e){}
+    ta.setAttribute('readonly', '');
+    if(gelukt){ toast('Gekopieerd! 💾'); $('#bk-hint').hidden = true; }
+    else { $('#bk-hint').hidden = false; ta.focus(); ta.select(); }
   };
   if(CLUB) $('#bk-bestand').onclick = () => {
     const a = document.createElement('a');
@@ -1064,15 +1074,17 @@ function backupMaakVel(){
 function backupTerugVel(){
   openVel(`<h2>Back-up terugzetten</h2>
     <p style="margin:0">Plak hier je back-up-code${CLUB ? ', of kies het back-upbestand' : ''}. Let op: wat er nu in Wolkje staat, wordt vervangen door je back-up.</p>
+    <button class="knop lijn" id="bk-plak" type="button">Plak uit klembord</button>
     <textarea id="bk-in" rows="5" placeholder="WOLKJE1:..." style="font-size:12px"></textarea>
     ${CLUB ? '<input type="file" id="bk-file" accept=".txt,text/plain" aria-label="Kies back-upbestand">' : ''}
     <div id="bk-fout" class="melding" hidden></div>
     <button class="knop" id="bk-ok">Terugzetten</button><button class="tekstknop" data-actie="sluit">Annuleren</button>`);
+  $('#bk-plak').onclick = async () => { try{ $('#bk-in').value = await navigator.clipboard.readText(); }catch(e){ $('#bk-in').focus(); toast('Houd je vinger in het vak en kies Plak.'); } };
   if(CLUB) $('#bk-file').onchange = async e => { const f = e.target.files[0]; if(f) $('#bk-in').value = await f.text(); };
   $('#bk-ok').onclick = () => {
     let json;
     try{ json = leesBackup($('#bk-in').value); }
-    catch(e){ const f = $('#bk-fout'); f.hidden = false; f.textContent = 'Deze code herken ik niet als een Wolkje-back-up. Kopieer hem nog een keer helemaal, van begin tot eind.'; return; }
+    catch(e){ const f = $('#bk-fout'); f.hidden = false; const plak = $('#bk-in').value.trim(); f.textContent = plak.includes('WOLKJE1') ? 'De code is niet helemaal compleet. Kopieer hem nog een keer, van begin tot eind.' : 'Wat je hebt geplakt is geen Wolkje-back-up. Waarschijnlijk is het kopiëren niet gelukt. Maak de back-up opnieuw en kopieer hem met Selecteer alles en Kopieer.'; return; }
     S.settings = json.docs.settings; S.days = {}; S.weeks = {};
     Object.entries(json.docs).forEach(([k,v]) => { if(k.startsWith('d-')) S.days[k.slice(2)] = v; else if(k.startsWith('w-')) S.weeks[k] = v; });
     Object.keys(json.docs).forEach(k => Opslag.bewaar(k)); Opslag.flush();
@@ -1138,7 +1150,30 @@ let laatsteDag = dkey(vandaag());
 setInterval(() => { if(!S.settings) return; const k = dkey(vandaag()); if(k !== laatsteDag || tab === 'vandaag'){ laatsteDag = k; if(!$('#scherm').classList.contains('open')) render(); } }, 60000);
 
 /* ============ start ============ */
+function herstelScherm(){
+  if(!CLUB || !location.hash.startsWith('#herstel-')) return false;
+  const code = 'WOLKJE1:' + decodeURIComponent(location.hash.slice(9));
+  document.querySelector('nav.tabs').hidden = true; $('#info-knop').hidden = true;
+  document.querySelectorAll('main > section').forEach(x => x.hidden = true);
+  const div = document.createElement('div'); div.className = 'slot';
+  div.innerHTML = `<svg viewBox="60 180 1940 1560" id="hs-wolk" style="width:170px"></svg>
+    <h1 style="font-size:24px">Je back-up staat klaar 💾</h1>
+    <p style="margin:0">Tik op de knop om hem te kopiëren.</p>
+    <button class="knop" id="hs-kopieer" style="width:100%">Kopieer mijn back-up</button>
+    <textarea id="hs-tekst" rows="3" readonly style="font-size:11px;word-break:break-all">${code}</textarea>
+    <div class="melding" style="text-align:left"><b>Daarna:</b><br>1. Open Wolkje via het icoontje op je beginscherm.<br>2. Ga naar Meer, Back-up terugzetten.<br>3. Tik op <b>Plak uit klembord</b> en daarna op Terugzetten.</div>`;
+  document.body.prepend(div);
+  tekenWolk($('#hs-wolk'), {kleur:'goud', vul:.6});
+  $('#hs-kopieer').onclick = async () => {
+    const ta = $('#hs-tekst'); let ok = false;
+    try{ await navigator.clipboard.writeText(code); ok = true; }catch(e){}
+    if(!ok){ ta.removeAttribute('readonly'); ta.focus(); ta.select(); ta.setSelectionRange(0, code.length); try{ ok = document.execCommand('copy'); }catch(e){} ta.setAttribute('readonly',''); }
+    $('#hs-kopieer').textContent = ok ? 'Gekopieerd! ✓' : 'Houd je vinger op de code en kies Kopieer';
+  };
+  return true;
+}
 (async function(){
+  if(herstelScherm()) return;
   // eerste beeld: een rustig wolkje terwijl we laden
   S.settings = null;
   tekenWolk($('#wolk'), {kleur:'goud', vul:.2});
