@@ -9,6 +9,8 @@
      Twee woorden laten meelopen kan zo: ['pepernoot', 'sneeuwvlok']
      ============================================================ -->
 <script>window.VIPCODES = ['pepernoot'];</script>
+<!-- LINK NAAR HET CLUBBERICHT OVER WOLKJE (voor reacties). Plak de link tussen de aanhalingstekens. Leeg = mailknop. -->
+<script>window.FEEDBACK_LINK = '';</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Wolkje">
@@ -831,8 +833,16 @@ function renderMeer(){
        <p class="klein" style="margin:0">${lb ? `Laatste back-up: ${lb}` : 'Je hebt nog geen back-up gemaakt.'}</p>`
     : `<p style="margin:0">Wil je je voortgang ergens anders verder zetten? Maak een back-up en zet hem daar terug. Al je vinkjes, punten, beloningen en kransen gaan mee.</p>`;
   const fb = window.FEEDBACK_EMAIL || 'info@okidocreations.nl';
-  $('#feedback-link').href = `mailto:${fb}?subject=${encodeURIComponent('Wat ik van Wolkje vind')}`;
-  $('#feedback-tekst').textContent = `Of mail naar ${fb}`;
+  const fl = (window.FEEDBACK_LINK || '').trim();
+  if(fl){
+    $('#feedback-link').href = fl; $('#feedback-link').target = '_blank'; $('#feedback-link').rel = 'noopener';
+    $('#feedback-link').textContent = 'Laat een reactie achter in de club';
+    $('#feedback-tekst').textContent = `Liever mailen? Dat kan naar ${fb}`;
+  } else {
+    $('#feedback-link').href = `mailto:${fb}?subject=${encodeURIComponent('Wat ik van Wolkje vind')}`;
+    $('#feedback-link').removeAttribute('target'); $('#feedback-link').textContent = 'Laat het weten';
+    $('#feedback-tekst').textContent = `Of mail naar ${fb}`;
+  }
   $('#inst-naam').textContent = S.settings.naam || 'Wolkje';
   $('#inst-ankers').textContent = `${S.settings.ankers.length} ankers`;
   $('#opslag-info').textContent = CLUB ? 'Je voortgang wordt bewaard op dit apparaat. Gebruik Wolkje dus steeds vanaf hetzelfde icoontje op je beginscherm, en maak af en toe een back-up.' : Opslag.modus === 'online' ? 'Je voortgang wordt bewaard in je account, dus je ziet hetzelfde op je telefoon en laptop.' : 'Let op: je voortgang wordt nu alleen op dit apparaat bewaard. Open Wolkje via je Claude-account om hem overal te zien.';
