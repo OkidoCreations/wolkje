@@ -201,6 +201,11 @@ nav.tabs a[aria-current=page]{color:var(--navy);background:var(--mint-l)}
       </div>
     </div>
     <div class="kaart" id="reisje-mini" hidden></div>
+    <div class="kaart" id="backup-herinnering" hidden style="background:#fff8ea">
+      <h3>💾 Even een back-up maken?</h3>
+      <p style="margin:0">Je wolkje staat alleen op deze telefoon. Gaat je telefoon kapot of krijg je een nieuwe? Dan ben je alles kwijt. Met een back-up neem je hem gewoon mee.</p>
+      <div class="rij" style="flex-wrap:wrap"><button class="knop mini" data-actie="backup-maak">Back-up maken</button><button class="tekstknop" data-actie="backup-later">Later</button></div>
+    </div>
     <div id="ankers" class="wrap" style="padding:0"></div>
     <div class="kaart">
       <div class="rij tussen"><h2>Ideeën-parkeerplaats</h2><a class="tekstknop" href="#meer">alles zien</a></div>
@@ -275,8 +280,14 @@ nav.tabs a[aria-current=page]{color:var(--navy);background:var(--mint-l)}
     </div>
     <div class="kaart">
       <h2>Back-up</h2>
-      <p style="margin:0">Nieuwe telefoon, of wil je je voortgang ergens anders verder zetten? Maak een back-up en zet hem daar terug. Al je vinkjes, punten, beloningen en kransen gaan mee.</p>
+      <div id="backup-uitleg"></div>
       <div class="rij" style="flex-wrap:wrap"><button class="knop mini" data-actie="backup-maak">Back-up maken</button><button class="knop mini lijn" data-actie="backup-terug">Back-up terugzetten</button></div>
+    </div>
+    <div class="kaart" style="background:var(--mint-l)">
+      <h2>💬 Wat vind jij van Wolkje?</h2>
+      <p style="margin:0">Hoe gebruik jij hem, wat vind je fijn en wat mis je nog? Laat het weten, alles wordt gelezen!</p>
+      <a class="knop mini" id="feedback-link" href="#" style="align-self:flex-start;text-decoration:none">Laat het weten</a>
+      <span class="klein" id="feedback-tekst"></span>
     </div>
     <div class="kaart">
       <h2>Instellingen</h2>
@@ -326,19 +337,19 @@ const vandaag = () => new Date();
 
 /* ============ startpakketjes ============ */
 const PAKKETJES = {
-  ochtend:{titel:'Wolkjesochtend', uitleg:'Rustig wakker worden, bewegen, en een tweede ochtend na het schoolbrengen. De laptop pas open als je planner klaar is.', dagdeel:'ochtend', ankers:[
+  ochtend:{titel:'Wolkjesochtend', uitleg:'Rustig wakker worden, even bewegen en je dag plannen voordat de drukte begint.', dagdeel:'ochtend', ankers:[
     {naam:'Even stil zijn', ico:'🕯️', pt:5},
     {naam:'Mijn affirmatie', ico:'💬', pt:5},
     {naam:'Mijn dag voor me zien', ico:'🌈', pt:5},
-    {naam:'Bewegen', ico:'🤸', pt:15, soort:'bewegen'},
+    {naam:'Tien minuutjes bewegen', ico:'🤸', pt:15, soort:'bewegen'},
     {naam:'Douchen', ico:'🚿', pt:10, soort:'douche'},
     {naam:'Een paar bladzijden lezen', ico:'📖', pt:10},
-    {naam:'Planner invullen, dan pas de laptop', ico:'📒', pt:15, tijd:'08:45', basis:true}]},
-  overdag:{titel:'Goed voor jezelf overdag', uitleg:'Op tijd lunchen, even naar buiten en de laptop op tijd dicht.', dagdeel:'overdag', ankers:[
+    {naam:'Mijn dag even plannen', ico:'📒', pt:15, basis:true}]},
+  overdag:{titel:'Goed voor jezelf overdag', uitleg:'Op tijd lunchen, genoeg drinken, even naar buiten en écht even pauze.', dagdeel:'overdag', ankers:[
     {naam:'Lunch vóór 13:00', ico:'🥗', pt:15, tijd:'12:30', soort:'lunch', basis:true},
     {naam:'Rondje buiten', ico:'🚶', pt:10, soort:'bewegen'},
-    {naam:'Glas water bij je laptop', ico:'💧', pt:5},
-    {naam:'Laptop dicht', ico:'💻', pt:10, tijd:'15:00'}]},
+    {naam:'Een fles water leegdrinken', ico:'💧', pt:5},
+    {naam:'Even écht pauze, 15 minuutjes', ico:'☕', pt:10}]},
   avond:{titel:'Avond zonder bank', uitleg:'Om 21:00 naar boven, journal in bed en om 22:00 het licht uit.', dagdeel:'avond', ankers:[
     {naam:'Om 21:00 naar boven', ico:'🌙', pt:20, tijd:'21:00', soort:'boven', basis:true},
     {naam:'Journal in bed', ico:'✍️', pt:10},
@@ -585,9 +596,9 @@ function ballonTekst(st, dd, d){
   if(st.gedaan === 0){
     if(dd.id === 'ochtend') return kies(['Goeiemorgen! Eén klein stapje is genoeg om te beginnen.','Rustig opstarten. Wat is je eerste anker vandaag?'], k);
     if(dd.id === 'avond') return kies(['Je avond begint. Niet ploffen hè, ik hou je in de gaten. 😉','Nog niks afgevinkt? Geeft niks, de avond telt ook!'], k);
-    return kies(['Hoi! Al geluncht? Eén vinkje en we zijn op weg.','Even pauze van je laptop? Ik wacht op je.'], k);
+    return kies(['Hoi! Al geluncht? Eén vinkje en we zijn op weg.','Even pauze? Ik wacht op je.'], k);
   }
-  if(dd.id === 'avond') return kies(['Bijna bedtijd. Om 21:00 naar boven, jij kunt het!','Laptop dicht, telefoon weg, boven ligt je journal op je te wachten.'], k + st.gedaan);
+  if(dd.id === 'avond') return kies(['Bijna bedtijd. Om 21:00 naar boven, jij kunt het!','Telefoon weg, boven ligt je journal op je te wachten.'], k + st.gedaan);
   if(st.geslaagd) return kies(['Je dag telt al! Alles wat er nu nog bij komt is extra. 🌟','Kijk jou gaan! Je wolkje kleurt lekker vol.'], k + st.gedaan);
   return kies(['Goed bezig! Ik word steeds voller. 😊','Nog eentje? Je doet het echt fijn vandaag.','Stapje voor stapje, zo komen we er.'], k + st.gedaan);
 }
@@ -609,6 +620,10 @@ function renderVandaag(){
   document.querySelectorAll('.energie button').forEach(b => b.setAttribute('aria-pressed', String(d.energie === b.dataset.e)));
   $('#energie-uitleg').textContent = d.energie === 'rood' ? 'zachte dag: je basisankers zijn genoeg' : d.energie === 'groen' ? 'volle energie: ga voor al je ankers' : d.energie === 'oranje' ? 'de helft van je ankers is een geslaagde dag' : 'elke ochtend even aantikken';
 
+  if(!S.settings.gestart){ S.settings.gestart = k; Opslag.bewaar('settings'); }
+  const dagenBezig = Math.round((vanKey(k) - vanKey(S.settings.gestart)) / 864e5);
+  const sindsBackup = S.settings.laatsteBackup ? Math.round((vanKey(k) - vanKey(S.settings.laatsteBackup)) / 864e5) : 999;
+  $('#backup-herinnering').hidden = !(CLUB && dagenBezig >= 7 && sindsBackup >= 30 && (!S.settings.backupLater || S.settings.backupLater <= k));
   const r = reisje(nu);
   const mini = $('#reisje-mini');
   if(r){ mini.hidden = false; mini.innerHTML = `<div class="rij tussen"><h3>Opstaan-reisje</h3><span class="chip">wekker ${tijdStr(r.wek)}</span></div><div class="balk"><i style="width:${Math.round(100*(r.van-r.wek)/Math.max(1,r.van-r.doel))}%"></i></div><span class="klein">${Number(S.settings.reisje.stap) === 0 ? `In één keer naar ${tijdStr(r.doel)}. Zet hem op! 💪` : r.bereikt ? `Je bent er! Doeltijd ${tijdStr(r.doel)} bereikt. 🐦` : `Van ${tijdStr(r.van)} naar ${tijdStr(r.doel)}, stapje voor stapje.`}</span>`; }
@@ -809,6 +824,15 @@ function renderMeer(){
     if(el.dataset.veld === 'tijd') render();
   }));
 
+  const lb = S.settings.laatsteBackup ? vanKey(S.settings.laatsteBackup).toLocaleDateString('nl-NL', {day:'numeric', month:'long'}) : null;
+  $('#backup-uitleg').innerHTML = CLUB
+    ? `<p style="margin:0">Je wolkje wordt alleen op deze telefoon bewaard. Gaat er iets mis met je telefoon, of krijg je een nieuwe? Dan ben je alles kwijt, tenzij je een back-up hebt.</p>
+       <ol style="margin:0;padding-left:20px"><li>Tik op <b>Back-up maken</b> en daarna op <b>Kopieer</b>.</li><li>Plak de code ergens waar je hem terugvindt, bijvoorbeeld in je notities of in een mailtje aan jezelf.</li><li>Nieuwe telefoon? Zet Wolkje op je beginscherm, klik het welkomstgesprekje even door en kies hier <b>Back-up terugzetten</b>.</li></ol>
+       <p class="klein" style="margin:0">${lb ? `Laatste back-up: ${lb}` : 'Je hebt nog geen back-up gemaakt.'}</p>`
+    : `<p style="margin:0">Wil je je voortgang ergens anders verder zetten? Maak een back-up en zet hem daar terug. Al je vinkjes, punten, beloningen en kransen gaan mee.</p>`;
+  const fb = window.FEEDBACK_EMAIL || 'info@okidocreations.nl';
+  $('#feedback-link').href = `mailto:${fb}?subject=${encodeURIComponent('Wat ik van Wolkje vind')}`;
+  $('#feedback-tekst').textContent = `Of mail naar ${fb}`;
   $('#inst-naam').textContent = S.settings.naam || 'Wolkje';
   $('#inst-ankers').textContent = `${S.settings.ankers.length} ankers`;
   $('#opslag-info').textContent = CLUB ? 'Je voortgang wordt bewaard op dit apparaat. Gebruik Wolkje dus steeds vanaf hetzelfde icoontje op je beginscherm, en maak af en toe een back-up.' : Opslag.modus === 'online' ? 'Je voortgang wordt bewaard in je account, dus je ziet hetzelfde op je telefoon en laptop.' : 'Let op: je voortgang wordt nu alleen op dit apparaat bewaard. Open Wolkje via je Claude-account om hem overal te zien.';
@@ -989,7 +1013,7 @@ function welkom(){
   toon();
 }
 function klaarMetWelkom(w){
-  S.settings = {versie:1, naam:w.naam, dagdelen:JSON.parse(JSON.stringify(STANDAARD_DAGDELEN)), ankers:[], beloningen:STANDAARD_BELONINGEN.map(b => ({...b, id:uid()})), ingewisseld:[], gekocht:[], cadeauAcc:[], aan:[], ideeen:[],
+  S.settings = {versie:1, gestart:dkey(vandaag()), naam:w.naam, dagdelen:JSON.parse(JSON.stringify(STANDAARD_DAGDELEN)), ankers:[], beloningen:STANDAARD_BELONINGEN.map(b => ({...b, id:uid()})), ingewisseld:[], gekocht:[], cadeauAcc:[], aan:[], ideeen:[],
     herinneringen:[{id:uid(), tijd:'07:00', naam:'Wolkjesochtend'},{id:uid(), tijd:'12:30', naam:'Tijd voor je lunch'},{id:uid(), tijd:'20:45', naam:'Bijna naar boven'}],
     reisje: w.reisje.aan ? {...w.reisje, start:dkey(vandaag()), pauzes:[]} : {...w.reisje, aan:false},
     hoofdstuk: w.doel ? {doel:w.doel, start:dkey(vandaag())} : null};
@@ -1020,7 +1044,8 @@ const UITLEG = [
  ['⏰','Opstaan-reisje', `<p>Wil je eerder opstaan? Vul bij Meer in hoe laat je wekker nu gaat en wat je doeltijd is. Kies daarna hoe je het wilt doen:</p><ul><li><b>In één keer:</b> je wekker gaat meteen op je doeltijd.</li><li><b>Met stapjes:</b> je begint meteen een stapje eerder, en elke week komt er een stapje bij.</li></ul><p>Lukt een stapje nog niet? Tik op "Nog een weekje op deze tijd". Je wolkje zet het anker "Opgestaan om..." automatisch in je ochtend.</p>`],
  ['🅿️','Ideeën-parkeerplaats', `<p>Schiet er tussendoor iets door je hoofd, een idee of iets waar je aan moet denken? Parkeer het hier. Dan is het veilig bewaard en hoef je het niet meteen te doen of te onthouden.</p><p>Je vindt alles terug bij Meer. Klaar ermee? Tik op "weg".</p>`],
  ['🔔','Herinneringen', `<p>Wolkje kan je telefoon niet zelf laten piepen. Daarom staan bij Meer je herinneringstijden. Zet die als wekker in je telefoon, met als naam bijvoorbeeld "Wolkje: tijd voor je avond".</p><p>Tik op een tijd of naam om hem te veranderen. Vergeet dan niet ook de wekker op je telefoon te verzetten.</p>`],
- ['💾','Waar wordt alles bewaard?', CLUB ? `<p>Je voortgang wordt bewaard op je eigen telefoon. Niemand anders kan erbij, ook Okido niet.</p><ul><li>Open Wolkje altijd via het icoontje op je beginscherm. Op een iPhone is dat namelijk een ander "kastje" dan Safari.</li><li>Nieuwe telefoon? Ga naar Meer, Back-up. Maak een back-up op je oude telefoon en zet hem terug op je nieuwe.</li></ul>` : `<p>Je voortgang wordt bewaard in je eigen Claude-account. Je ziet dus hetzelfde op je telefoon en je laptop, en alleen jij kunt erbij.</p><p>Wil je verder in een andere versie van Wolkje? Maak bij Meer een back-up en zet hem daar terug.</p>`],
+ ['💬','Wat vind jij ervan?', `<p>Hoe gebruik jij Wolkje, wat vind je fijn en wat mis je nog? Bij Meer staat een knopje om het te laten weten. Alles wordt gelezen!</p>`],
+ ['💾','Waar wordt alles bewaard?', CLUB ? `<p>Je voortgang wordt bewaard op je eigen telefoon. Niemand anders kan erbij, ook Okido niet.</p><ul><li>Open Wolkje altijd via het icoontje op je beginscherm. Op een iPhone is dat namelijk een ander "kastje" dan Safari.</li><li>Omdat alles alleen op je telefoon staat, is een back-up heel handig. Ga naar Meer, Back-up maken, en bewaar de code in je notities of mail hem naar jezelf.</li><li>Eens per maand herinnert je wolkje je er even aan.</li><li>Nieuwe telefoon? Zet Wolkje op je beginscherm, klik het welkomstgesprekje door en kies bij Meer, Back-up terugzetten.</li></ul>` : `<p>Je voortgang wordt bewaard in je eigen Claude-account. Je ziet dus hetzelfde op je telefoon en je laptop, en alleen jij kunt erbij.</p><p>Wil je verder in een andere versie van Wolkje? Maak bij Meer een back-up en zet hem daar terug.</p>`],
 ];
 function uitlegVel(){
   delete $('#vel').dataset.vast;
@@ -1068,13 +1093,14 @@ function backupMaakVel(){
     try{ gelukt = document.execCommand('copy'); }catch(e){}
     try{ await navigator.clipboard.writeText(t); gelukt = true; }catch(e){}
     ta.setAttribute('readonly', '');
-    if(gelukt){ toast('Gekopieerd! 💾'); $('#bk-hint').hidden = true; }
+    if(gelukt){ toast('Gekopieerd! Plak hem nu ergens veilig. 💾'); $('#bk-hint').hidden = true; S.settings.laatsteBackup = dkey(vandaag()); Opslag.bewaar('settings'); render(); }
     else { $('#bk-hint').hidden = false; ta.focus(); ta.select(); }
   };
   if(CLUB) $('#bk-bestand').onclick = () => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([t], {type:'text/plain'}));
     a.download = `wolkje-backup_${dkey(vandaag())}.txt`; document.body.appendChild(a); a.click(); a.remove();
+    S.settings.laatsteBackup = dkey(vandaag()); Opslag.bewaar('settings'); render();
   };
 }
 function backupTerugVel(){
@@ -1143,6 +1169,7 @@ document.addEventListener('click', e => {
   }
   if(a === 'hoofdstuk-nieuw') hoofdstukVel();
   if(a === 'backup-maak') backupMaakVel();
+  if(a === 'backup-later'){ S.settings.backupLater = dkey(plusDagen(vandaag(), 7)); Opslag.bewaar('settings'); render(); }
   if(a === 'backup-terug') backupTerugVel();
   if(a === 'dd-bewerk') ankersLijstVel(id);
   if(a === 'anker-nieuw'){ lijstFilter = id; terugNaarLijst = false; ankerVel(null, id); }
